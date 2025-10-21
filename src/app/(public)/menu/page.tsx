@@ -1,5 +1,6 @@
 "use client";
 import { BonusAppPromo } from "@/components/BonusAppPromo";
+import { DishInfo } from "@/components/DishInfo";
 import type { Metadata } from "next";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo } from "react";
@@ -18,6 +19,9 @@ export default function MenuPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const [isDishInfoModalOpen, setIsDishInfoModalOpen] = useState(false);
+  const [selectedDish, setSelectedDish] = useState<any>(null);
 
   if (!ready) {
     return (
@@ -91,6 +95,16 @@ export default function MenuPage() {
     }
   };
 
+  const openDishModal = (dish: any) => {
+    setSelectedDish(dish);
+    setIsDishInfoModalOpen(true);
+  };
+
+  const closeDishInfoModal = () => {
+    setIsDishInfoModalOpen(false);
+    setSelectedDish(null);
+  };
+
   if (loading) {
     return (
       <div className="pt-20 px-20">
@@ -148,6 +162,7 @@ export default function MenuPage() {
                     title={getLocalized(dish, "name")}
                     category={dish.menu_type_details?.name || ""}
                     price={dish.price}
+                    onClick={() => openDishModal(dish)}
                   />
                 ))}
               </div>
@@ -159,6 +174,13 @@ export default function MenuPage() {
       <div className="px-20 mb-10">
         <BonusAppPromo />
       </div>
+
+      {/* DishInfo Modal */}
+      <DishInfo
+        isOpen={isDishInfoModalOpen}
+        selectedDish={selectedDish}
+        onClose={closeDishInfoModal}
+      />
     </div>
   );
 }
