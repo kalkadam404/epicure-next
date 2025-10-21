@@ -122,11 +122,11 @@ export const bookingAPI = {
 
 export const offerAPI = {
   getOffers: () => {
-    return apiClient.get('/offers/');
+    return apiClient.get('/offers/offers/');
   },
   
   getOffer: (id: number) => {
-    return apiClient.get(`/offers/${id}/`);
+    return apiClient.get(`/offers/offers/${id}/`);
   },
 };
 
