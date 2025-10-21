@@ -1,8 +1,11 @@
+"use client";
+
 import { useTranslation } from "react-i18next";
 import res from "@/assets/res.svg";
 import fork from "@/assets/fork.svg";
 import timeIcon from "@/assets/time.svg";
 import Image from "next/image";
+import { getImageUrl } from "@/lib/api";
 
 interface RestaurantCardProps {
   img: string;
@@ -30,11 +33,18 @@ export function RestaurantCard({
 
   return (
     <div className="w-full h-full max-w-md bg-white rounded-3xl shadow-lg p-5 space-y-4">
-      <img
-        src={img}
-        alt="Restaurant"
-        className="rounded-2xl w-full h-60 object-cover"
-      />
+      <div className="relative h-60 w-full rounded-2xl overflow-hidden bg-gray-100">
+        <Image
+          src={getImageUrl(img)}
+          alt={ResName || "Ресторан"}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          onError={(e) => {
+            e.currentTarget.src = '/images/placeholder.svg';
+          }}
+        />
+      </div>
 
       <div className="flex flex-col gap-3 ">
         <h2 className="text-xl font-bold">{ResName}</h2>

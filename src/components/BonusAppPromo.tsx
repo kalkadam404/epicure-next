@@ -58,6 +58,7 @@ export function BonusAppPromo() {
             src={mobile}
             alt="Мобильное приложение"
             className="w-full max-w-[1500px]"
+            priority
           />
 
           <div className="absolute top-20 right-[440px] bg-white rounded-lg p-2 shadow-lg flex items-center">

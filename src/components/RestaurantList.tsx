@@ -1,18 +1,23 @@
+"use client";
+
 import { useTranslation } from "react-i18next";
 import { RestaurantCard } from "./RestaurantCard";
+import { CityModal } from "./CityModal";
 import { useEffect, useState } from "react";
 import locationIcon from "@/assets/location.svg";
-import axios from "axios";
+import { restaurantAPI } from "@/lib/api";
 import Image from "next/image";
 
 export function RestaurantList() {
   const [restaurants, setRestaurants] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedCity, setSelectedCity] = useState<any>(null);
+  const [isCityModalOpen, setIsCityModalOpen] = useState(false);
 
-  const { i18n, t } = useTranslation();
-  const locale = { value: i18n.language || "ru" };
+  const { i18n, t, ready } = useTranslation();
+  
+  const locale = { value: i18n?.language || "ru" };
   function getLocalized(item: { [x: string]: any }, field: string) {
     const lang = locale.value.toLowerCase();
     return item[`${field}_${lang}`] || item[`${field}_ru`];
@@ -23,12 +28,7 @@ export function RestaurantList() {
     setError(null);
 
     try {
-      let url = `http://localhost:8000/api/v1/restaurants/`;
-      if (cityId) {
-        url += `?city=${cityId}`;
-      }
-
-      const { data } = await axios.get(url);
+      const { data } = await restaurantAPI.getRestaurants(cityId || undefined);
       setRestaurants(Array.isArray(data) ? data : data.results || []);
       console.log("Fetched restaurants:", restaurants);
     } catch (err) {
@@ -43,6 +43,19 @@ export function RestaurantList() {
     fetchRestaurants();
   }, []);
 
+  const handleCitySelection = (city: any) => {
+    setSelectedCity(city);
+    fetchRestaurants(city.id);
+  };
+
+  const showCityModal = () => {
+    setIsCityModalOpen(true);
+  };
+
+  const closeCityModal = () => {
+    setIsCityModalOpen(false);
+  };
+
   return (
     <div className="flex flex-col mt-10" data-aos="fade-up">
       <div className="flex w-full items-center justify-between">
@@ -55,11 +68,11 @@ export function RestaurantList() {
         </div>
         <div
           className="flex items-center gap-1 bg-[#EDEDED] rounded-[20px] px-5 py-2 cursor-pointer"
-          // @click="showCityModal"
+          onClick={showCityModal}
         >
           <Image src={locationIcon} width={24} height={24} alt="" />
           <div className="font-medium text-lg">
-            {selectedCity ? "ss" : t("buttons.select_city")}
+            {selectedCity ? getLocalized(selectedCity, "name") : t("buttons.select_city")}
           </div>
         </div>
       </div>
@@ -93,6 +106,14 @@ export function RestaurantList() {
           />
         ))}
       </div>
+
+      {/* City Modal */}
+      <CityModal
+        isOpen={isCityModalOpen}
+        currentCityId={selectedCity?.id}
+        onClose={closeCityModal}
+        onCitySelected={handleCitySelection}
+      />
     </div>
   );
 }
