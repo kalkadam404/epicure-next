@@ -7,6 +7,9 @@ import banner1 from "@/assets/banner1.png";
 import banner2 from "@/assets/banner2.png";
 import banner3 from "@/assets/banner3.png";
 import { RestaurantList } from "@/components/RestaurantList";
+import { DishList } from "@/components/DishList";
+import { DishInfo } from "@/components/DishInfo";
+import { useState } from "react";
 
 // export const metadata: Metadata = {
 //   title: "Epicure-home",
@@ -14,6 +17,19 @@ import { RestaurantList } from "@/components/RestaurantList";
 // };
 
 export default function HomePage() {
+  const [selectedDish, setSelectedDish] = useState<any>(null);
+  const [isDishModalOpen, setIsDishModalOpen] = useState(false);
+
+  const handleDishClick = (dish: any) => {
+    setSelectedDish(dish);
+    setIsDishModalOpen(true);
+  };
+
+  const closeDishModal = () => {
+    setIsDishModalOpen(false);
+    setSelectedDish(null);
+  };
+
   return (
     <div className="flex  flex-col px-20 mb-20 w-full">
       <SliderComponent
@@ -23,8 +39,16 @@ export default function HomePage() {
         description="Откройте для себя наши новые продукты и специальные предложения"
       />
       <RestaurantList />
-      {/* <DishList /> */}
+      <DishList onDishClick={handleDishClick} />
       <BonusAppPromo />
+      
+      {isDishModalOpen && selectedDish && (
+        <DishInfo
+          selectedDish={selectedDish}
+          isOpen={isDishModalOpen}
+          onClose={closeDishModal}
+        />
+      )}
     </div>
   );
 }
