@@ -10,21 +10,16 @@ interface Props {
   imageSrc?: (string | StaticImageData)[];
   title?: string;
   description?: string;
-  height?: "21/9" | "3/4";
 }
 
 export default function SliderComponent({
   imageSrc,
   title,
   description,
-  height = "21/9",
 }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const aspectClass = height === "3/4" ? "aspect-[3/4]" : "aspect-[16/9]";
   return (
-    <div
-      className={` relative aspect-[${height}]  max-sm:-mx-4 max-sm:aspect-[3/4]`}
-    >
+    <div className={`w-full  relative aspect-[16/9] max-sm:aspect-[3/4]`}>
       <Swiper
         spaceBetween={30}
         centeredSlides={true}
@@ -42,7 +37,7 @@ export default function SliderComponent({
         {imageSrc?.map((img, i) => (
           <SwiperSlide key={i}>
             <div
-              className={`h-150 relative w-full aspect-[${height}] overflow-hidden max-sm:aspect-[3/4]`}
+              className={`h-150 relative w-full aspect-[16/9] overflow-hidden max-sm:aspect-[3/4]`}
             >
               <Image
                 src={img}

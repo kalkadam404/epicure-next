@@ -37,20 +37,21 @@ export default function Home() {
 
   return (
     <div className="flex  flex-col px-20 mb-20 w-full max-sm:px-4">
-      <SliderComponent
-        height="21/9"
-        imageSrc={[banner1, banner2, banner3, banner2, banner3]}
-        title="Потрясающее предложение"
-        description="Откройте для себя наши новые продукты и специальные предложения"
-      />
-      
+      <div className="-mx-4">
+        <SliderComponent
+          imageSrc={[banner1, banner2, banner3, banner2, banner3]}
+          title="Потрясающее предложение"
+          description="Откройте для себя наши новые продукты и специальные предложения"
+        />
+      </div>
+
       {/* Search Section */}
       <div className="my-12">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
             Найдите идеальный ресторан
           </h2>
-          <SearchComponent 
+          <SearchComponent
             showRestaurants={true}
             showDishes={false}
             className="bg-white rounded-2xl shadow-lg border border-gray-100"

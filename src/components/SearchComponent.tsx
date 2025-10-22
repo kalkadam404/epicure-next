@@ -14,12 +14,12 @@ interface SearchComponentProps {
   onClear?: () => void;
 }
 
-export function SearchComponent({ 
-  showRestaurants = true, 
-  showDishes = true, 
+export function SearchComponent({
+  showRestaurants = true,
+  showDishes = true,
   className = "",
   onSearchResults,
-  onClear
+  onClear,
 }: SearchComponentProps) {
   const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,7 +27,7 @@ export function SearchComponent({
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState("");
-
+  const [mounted, setMounted] = useState(false);
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -61,7 +61,10 @@ export function SearchComponent({
   // Выполняем поиск при изменении searchQuery с дебаунсом
   useEffect(() => {
     const timer = setTimeout(() => {
-      console.log("SearchComponent: calling onSearchResults with:", searchQuery);
+      console.log(
+        "SearchComponent: calling onSearchResults with:",
+        searchQuery
+      );
       if (onSearchResults) {
         onSearchResults(searchQuery);
       } else {
@@ -92,6 +95,12 @@ export function SearchComponent({
     }
   };
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
     <div className={`relative ${className}`}>
       <div className="relative">
@@ -104,22 +113,22 @@ export function SearchComponent({
             className="text-gray-400"
           />
         </div>
-        
+
         <input
           type="text"
           value={searchQuery}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
           placeholder={
-            showDishes && showRestaurants 
+            showDishes && showRestaurants
               ? t("search.placeholder.both") || "Поиск ресторанов и блюд..."
-              : showDishes 
+              : showDishes
               ? t("search.placeholder.dishes") || "Поиск блюд..."
               : t("search.placeholder.restaurants") || "Поиск ресторанов..."
           }
           className="w-full pl-12 pr-12 py-4 text-lg border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black-500 focus:border-transparent transition-all"
         />
-        
+
         {searchQuery && (
           <button
             onClick={handleClear}
@@ -142,7 +151,9 @@ export function SearchComponent({
           {isSearching ? (
             <div className="p-4 text-center">
               <div className="inline-block w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-              <p className="mt-2 text-gray-600">{t("search.searching") || "Поиск..."}</p>
+              <p className="mt-2 text-gray-600">
+                {t("search.searching") || "Поиск..."}
+              </p>
             </div>
           ) : searchResults.length > 0 ? (
             <div className="p-2">
@@ -169,13 +180,15 @@ export function SearchComponent({
                 </div>
               ))}
             </div>
-          ) : searchQuery && (
-            <div className="p-4 text-center text-gray-500">
-              <p>{t("search.no_results") || "Ничего не найдено"}</p>
-              <p className="text-sm mt-1">
-                {t("search.try_different") || "Попробуйте другой запрос"}
-              </p>
-            </div>
+          ) : (
+            searchQuery && (
+              <div className="p-4 text-center text-gray-500">
+                <p>{t("search.no_results") || "Ничего не найдено"}</p>
+                <p className="text-sm mt-1">
+                  {t("search.try_different") || "Попробуйте другой запрос"}
+                </p>
+              </div>
+            )
           )}
         </div>
       )}

@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="ru">
       <body className={fontManrope.className}>
         <Header />
-        <div className="pt-[105px] w-full">{children}</div>
+        <div className="pt-32 w-full max-sm:pt-14">{children}</div>
         <Footer />
       </body>
     </html>
