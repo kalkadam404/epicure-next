@@ -194,5 +194,18 @@
     "description2": "Our customer service manager. He is always ready to help and make your visit unforgettable.",
     "description3": "Our sommelier who will help you choose the perfect wine for your dish. He knows everything about wines and is always happy to share his knowledge.",
     "description4": "Our interior designer who creates a unique atmosphere in each Epicure restaurant. He knows how to make the atmosphere cozy and stylish."
+  },
+  "search": {
+    "placeholder": {
+      "both": "Search restaurants and dishes...",
+      "dishes": "Search dishes...",
+      "restaurants": "Search restaurants..."
+    },
+    "restaurants": "Restaurants",
+    "dishes": "Dishes",
+    "no_results": "No results found",
+    "try_different": "Try changing your search query",
+    "searching": "Searching...",
+    "clear": "Clear search"
   }
 }
