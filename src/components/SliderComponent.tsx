@@ -10,7 +10,7 @@ interface Props {
   imageSrc?: (string | StaticImageData)[];
   title?: string;
   description?: string;
-  height?: string;
+  height?: "16/9" | "3/4";
 }
 
 export default function SliderComponent({
@@ -20,6 +20,7 @@ export default function SliderComponent({
   height = "16/9",
 }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const aspectClass = height === "3/4" ? "aspect-[3/4]" : "aspect-[16/9]";
   return (
     <div
       className={` relative aspect-[${height}]  max-sm:-mx-4 max-sm:aspect-[3/4]`}
@@ -33,7 +34,7 @@ export default function SliderComponent({
         }}
         speed={1000}
         loop={true}
-        className="w-auto"
+        className="w-full"
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
         modules={[Autoplay]}
         pagination={{ clickable: true }}

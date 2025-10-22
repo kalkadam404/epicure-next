@@ -1,15 +1,50 @@
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/assets/logo_w.svg";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SideBar } from "./SideBar";
+import { useTranslation } from "react-i18next";
+import { usePathname } from "next/navigation";
+import { Login } from "./Login";
+import { Register } from "./Register";
 
 export function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
+  const { i18n, t } = useTranslation();
+  const pathname = usePathname();
+  const locales = [
+    { code: "en", name: "English" },
+    { code: "ru", name: "Русский" },
+    { code: "kz", name: "Қазақша" },
+  ];
+  const isActive = (path: string) => pathname === path;
+  const currentLanguage = i18n.language || "ru";
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+  };
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsLanguageMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   return (
     <>
+      <Login isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      <Register
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+      />
       <SideBar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <header className="fixed top-0 z-50 w-full shadow-sm bg-white/95 backdrop-blur-md">
+      <header className="fixed top-0 z-30 w-full shadow-sm bg-white/95 backdrop-blur-md">
         <div className="container mx-auto px-6 py-3 max-sm:px-4">
           <div className="flex items-center justify-between max-sm:flex-row-reverse">
             <Link
@@ -18,7 +53,7 @@ export function Header() {
             >
               <Image
                 src={logo}
-                className="w-14 h-14 group-hover:scale-105 transition-transform max-sm:w-12 max-sm:h-12"
+                className="w-14 h-14 group-hover:scale-105 transition-transform max-sm:w-8 max-sm:h-8"
                 alt="logo"
               />
               <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-black">
@@ -28,66 +63,86 @@ export function Header() {
             <Image
               src="/burger_menu.svg"
               alt="menu"
-              width={40}
-              height={40}
+              width={30}
+              height={30}
               onClick={() => setIsSidebarOpen(true)}
               className="sm:hidden block"
             />
             <nav className="hidden md:flex items-center gap-10 text-gray-700">
-              <Link
-                href={"/menu"}
-                className="nav-link relative font-medium text-lg hover:text-black transition-all"
-              >
-                Меню
-              </Link>
-              <div className="nav-link relative font-medium text-lg hover:text-black transition-all cursor-pointer">
-                Бронирование
-              </div>
-              <Link
-                href={"/offers"}
-                className="nav-link relative font-medium text-lg hover:text-black transition-all"
-              >
-                Пакеты
-              </Link>
-              <Link
-                href={"/about"}
-                className="nav-link relative font-medium text-lg hover:text-black transition-all"
-              >
-                О нас
-              </Link>
+              {[
+                { href: "/menu", label: t("menu") },
+                { href: "/booking", label: t("booking") },
+                { href: "/offers", label: t("packages") },
+                { href: "/about", label: t("about") },
+              ].map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
+                    isActive(href)
+                      ? "text-black"
+                      : "text-gray-800 hover:text-black/70"
+                  }`}
+                >
+                  {label}
+                  <span
+                    className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
+                      isActive(href) ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
+                  />
+                </Link>
+              ))}
             </nav>
-            <div className="flex items-center gap-5 max-sm:hidden">
-              <div className="relative mr-2 ">
-                {/* <button
-              @click="toggleLanguageMenu"
-              class="flex items-center gap-1 px-3 py-1 rounded-full bg-gray-50 hover:bg-gray-100 transition-all text-gray-700"
+
+            <div
+              className="flex items-center gap-5 max-sm:hidden"
+              ref={menuRef}
             >
-              <span class="font-medium">{{
-                currentLanguage.toUpperCase()
-              }}</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4 text-gray-500 transition-transform"
-                :class="{ 'rotate-180': isLanguageMenuOpen }"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button> */}
+              <div className="relative">
+                {/* Кнопка открытия */}
+                <button
+                  onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+                  className="px-3 py-2 text-gray-800 hover:bg-gray-100 rounded-md"
+                >
+                  {currentLanguage.toUpperCase()}
+                </button>
+
+                {/* Выпадающее меню */}
+                <div
+                  className={`absolute right-0 mt-2 w-24 bg-white rounded-lg shadow-lg py-1 z-50 origin-top-right transform transition-all duration-150 ${
+                    isLanguageMenuOpen
+                      ? "scale-100 opacity-100"
+                      : "scale-95 opacity-0 pointer-events-none"
+                  }`}
+                >
+                  {locales.map((item) => (
+                    <button
+                      key={item.code}
+                      onClick={() => {
+                        changeLanguage(item.code);
+                        setIsLanguageMenuOpen(false);
+                      }}
+                      className={`block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 transition-colors ${
+                        currentLanguage === item.code ? "font-bold" : ""
+                      }`}
+                    >
+                      {item.code.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <button className="text-gray-800 hover:text-black text-base font-medium max-sm:hidden">
-                Регистрация
+              <button
+                className="text-gray-800 hover:text-black text-base font-medium max-sm:hidden"
+                onClick={() => setIsLoginOpen(true)}
+              >
+                {t("login")}
               </button>
-              <button className="bg-black text-white font-medium rounded-full px-6 py-2 max-sm:hidden">
-                Вход
+              <button
+                className="bg-black text-white font-medium rounded-full px-6 py-2 max-sm:hidden"
+                onClick={() => setIsRegisterOpen(true)}
+              >
+                {t("register")}
               </button>
             </div>
           </div>
