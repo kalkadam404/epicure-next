@@ -53,8 +53,7 @@ export function Header() {
         <div className="container mx-auto px-6 py-3 max-sm:px-4">
           <div className="flex items-center justify-between max-sm:flex-row-reverse">
             <Link
-              href={""}
-              onClick={() => setIsBookModalOpen(true)}
+              href={"/"}
               className="flex items-center gap-3 group max-sm:flex-row-reverse"
             >
               <Image
@@ -75,29 +74,66 @@ export function Header() {
               className="sm:hidden block"
             />
             <nav className="hidden md:flex items-center gap-10 text-gray-700">
-              {[
-                { href: "/menu", label: t("menu") },
-                { href: "", label: t("booking") },
-                { href: "/offers", label: t("packages") },
-                { href: "/about", label: t("about") },
-              ].map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
-                    isActive(href)
-                      ? "text-black"
-                      : "text-gray-800 hover:text-black/70"
+              <Link
+                href={"/menu"}
+                className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
+                  isActive("/menu")
+                    ? "text-black"
+                    : "text-gray-800 hover:text-black/70"
+                }`}
+              >
+                {t("menu")}
+                <span
+                  className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
+                    isActive("/menu") ? "w-full" : "w-0 group-hover:w-full"
                   }`}
-                >
-                  {label}
-                  <span
-                    className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
-                      isActive(href) ? "w-full" : "w-0 group-hover:w-full"
-                    }`}
-                  />
-                </Link>
-              ))}
+                />
+              </Link>
+              <button
+                onClick={() => setIsBookModalOpen(true)}
+                className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
+                  isActive("/booking")
+                    ? "text-black"
+                    : "text-gray-800 hover:text-black/70"
+                }`}
+              >
+                {t("booking")}
+                <span
+                  className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
+                    isActive("/booking") ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                />
+              </button>
+              <Link
+                href={"/offers"}
+                className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
+                  isActive("/offers")
+                    ? "text-black"
+                    : "text-gray-800 hover:text-black/70"
+                }`}
+              >
+                {t("packages")}
+                <span
+                  className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
+                    isActive("/offers") ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                />
+              </Link>
+              <Link
+                href={"/about"}
+                className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
+                  isActive("/about")
+                    ? "text-black"
+                    : "text-gray-800 hover:text-black/70"
+                }`}
+              >
+                {t("about")}
+                <span
+                  className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
+                    isActive("/about") ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                />
+              </Link>
             </nav>
 
             <div
