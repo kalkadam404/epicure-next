@@ -32,7 +32,7 @@ export function RestaurantCard({
   const formattedClosingTime = closingTime ? closingTime.slice(0, 5) : "";
 
   return (
-    <div className="w-full h-full max-w-md bg-white rounded-3xl shadow-lg p-5 space-y-4">
+    <div className="w-full h-full max-w-md bg-white rounded-3xl shadow-lg p-5 space-y-4 max-sm:px-4">
       <div className="relative h-60 w-full rounded-2xl overflow-hidden bg-gray-100">
         <Image
           src={getImageUrl(img)}
@@ -56,7 +56,7 @@ export function RestaurantCard({
 
       <div className="flex items-start gap-2 text-gray-700">
         <Image src={fork} alt="" width={25} height={24} />
-        <span>{menuType}</span>
+        <span className="line-clamp-3">{menuType}</span>
       </div>
 
       <div className="flex items-center gap-2 text-gray-700">

@@ -19,7 +19,12 @@ interface CityModalProps {
   onCitySelected: (city: City) => void;
 }
 
-export function CityModal({ isOpen, currentCityId, onClose, onCitySelected }: CityModalProps) {
+export function CityModal({
+  isOpen,
+  currentCityId,
+  onClose,
+  onCitySelected,
+}: CityModalProps) {
   const { t, i18n } = useTranslation();
   const [cities, setCities] = useState<City[]>([]);
   const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
@@ -58,7 +63,7 @@ export function CityModal({ isOpen, currentCityId, onClose, onCitySelected }: Ci
 
   const confirmSelection = () => {
     if (selectedCityId) {
-      const selectedCity = cities.find(city => city.id === selectedCityId);
+      const selectedCity = cities.find((city) => city.id === selectedCityId);
       if (selectedCity) {
         onCitySelected(selectedCity);
         onClose();
@@ -74,18 +79,24 @@ export function CityModal({ isOpen, currentCityId, onClose, onCitySelected }: Ci
         className="absolute inset-0 bg-black/40 backdrop-blur-md backdrop-saturate-150 transition-all duration-300 ease-in-out z-40"
         onClick={onClose}
       />
-      <div className="relative bg-white w-[550px] shadow-xl flex flex-col items-start rounded-lg py-9 px-10 m-auto z-50 max-h-[80vh] overflow-y-auto">
+      <div className="relative bg-white w-[550px] shadow-xl flex flex-col items-start rounded-lg py-9 px-10 m-auto z-50 max-h-[80vh] overflow-y-auto max-sm:px-4 max-sm:py-6 max-sm:mx-4">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 cursor-pointer hover:opacity-70 transition-opacity"
         >
-          <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            className="w-full h-full  "
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
         <div className="mb-6">
-          <div className="text-2xl font-bold text-gray-800">
+          <div className="text-2xl font-bold text-gray-800 max-sm:text-xl">
             {t("buttons.select_city")}
           </div>
         </div>
@@ -95,19 +106,31 @@ export function CityModal({ isOpen, currentCityId, onClose, onCitySelected }: Ci
               key={city.id}
               onClick={() => selectCity(city)}
               className={`flex items-center gap-4 rounded-lg border py-4 px-5 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${
-                selectedCityId === city.id ? "border-black border-2 bg-gray-100" : "border-gray-300"
+                selectedCityId === city.id
+                  ? "border-black border-2 bg-gray-100"
+                  : "border-gray-300"
               }`}
             >
               <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
                 <svg
-                  className={`w-5 h-5 ${selectedCityId === city.id ? "text-black" : "text-gray-400"}`}
+                  className={`w-5 h-5 ${
+                    selectedCityId === city.id ? "text-black" : "text-gray-400"
+                  }`}
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
-                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
-              <div className={`font-medium ${selectedCityId === city.id ? "text-black" : "text-gray-700"}`}>
+              <div
+                className={`font-medium ${
+                  selectedCityId === city.id ? "text-black" : "text-gray-700"
+                }`}
+              >
                 {getLocalizedCityName(city)}
               </div>
             </div>
@@ -130,7 +153,11 @@ export function CityModal({ isOpen, currentCityId, onClose, onCitySelected }: Ci
             className="flex items-center justify-center gap-2 bg-black text-white rounded-lg py-3.5 px-6 w-full font-medium transition-colors hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
             </svg>
             {t("buttons.select") || "Выбрать"}
           </button>

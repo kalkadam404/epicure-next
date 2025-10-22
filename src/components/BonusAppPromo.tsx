@@ -5,8 +5,8 @@ import Image from "next/image";
 export function BonusAppPromo() {
   const { t } = useTranslation();
   return (
-    <div className="mt-20 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-[20px] overflow-hidden relative">
-      <div className="z-10 max-w-lg px-6 py-8">
+    <div className=" flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-[20px] overflow-hidden relative max-sm:px-2 max-sm:py-2">
+      <div className="z-10 max-w-lg px-6 py-8 max-sm:px-4">
         <p className="text-gray-700 font-medium mb-2">
           {t("bonusAppPromo.gift")}
         </p>
@@ -15,10 +15,42 @@ export function BonusAppPromo() {
         </h2>
         <p className="text-gray-700 mb-6">{t("bonusAppPromo.description")}</p>
 
-        <div className="flex flex-col mt-10 sm:flex-row gap-4">
+        <div className="mt-8 md:mt-0 relative sm:hidden">
+          <div className="">
+            <Image
+              src={mobile}
+              alt="Мобильное приложение"
+              className="w-full max-w-[1500px]"
+              priority
+            />
+
+            <div className="absolute top-20 right-[440px] bg-white rounded-lg p-2 shadow-lg flex items-center max-sm:right-10">
+              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-2">
+                Б
+              </div>
+              <span className="font-medium">+234</span>
+            </div>
+
+            <div className="absolute top-48 right-[220px] bg-white rounded-lg p-2 shadow-lg flex items-center border border-gray-200 max-sm:right-auto max-sm:top-2 max-sm:left-15">
+              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-2">
+                Б
+              </div>
+              <span className="font-medium">+234</span>
+            </div>
+
+            <div className="absolute bottom-30 right-[450px] bg-white rounded-lg p-2 shadow-lg flex items-center border border-gray-200 max-sm:bottom-0 max-sm:right-20">
+              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-2">
+                Б
+              </div>
+              <span className="font-medium">+234</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center mt-10 sm:flex-row gap-4">
           <a
             href="#"
-            className="flex items-center bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+            className="flex items-center bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800 transition-colors max-sm:w-fit"
           >
             <svg
               className="w-6 h-6 mr-2"
@@ -35,7 +67,7 @@ export function BonusAppPromo() {
 
           <a
             href="#"
-            className="flex items-center bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+            className="flex items-center bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800 transition-colors max-sm:w-fit"
           >
             <svg
               className="w-6 h-6 mr-2"
@@ -52,7 +84,7 @@ export function BonusAppPromo() {
         </div>
       </div>
 
-      <div className="mt-8 md:mt-0 relative">
+      <div className="mt-8 md:mt-0 relative max-sm:hidden">
         <div className="">
           <Image
             src={mobile}

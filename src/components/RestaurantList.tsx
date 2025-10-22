@@ -21,7 +21,7 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
 
   const { i18n, t, ready } = useTranslation();
-  
+
   const locale = { value: i18n?.language || "ru" };
   function getLocalized(item: { [x: string]: any }, field: string) {
     const lang = locale.value.toLowerCase();
@@ -104,7 +104,7 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
   return (
     <div className="flex flex-col mt-10" data-aos="fade-up">
       <div className="flex w-full items-center justify-between">
-        <div className="font-bold text-3xl">
+        <div className="font-bold text-3xl max-sm:text-xl">
           {searchQuery 
             ? `Результаты поиска для "${searchQuery}"`
             : selectedCity
@@ -117,9 +117,17 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
           className="flex items-center gap-1 bg-[#EDEDED] rounded-[20px] px-5 py-2 cursor-pointer"
           onClick={showCityModal}
         >
-          <Image src={locationIcon} width={24} height={24} alt="" />
-          <div className="font-medium text-lg">
-            {selectedCity ? getLocalized(selectedCity, "name") : t("buttons.select_city")}
+          <Image
+            src={locationIcon}
+            width={24}
+            height={24}
+            alt=""
+            className="max-sm:w-5 max-sm:h-5"
+          />
+          <div className="font-medium text-lg max-sm:text-base">
+            {selectedCity
+              ? getLocalized(selectedCity, "name")
+              : t("buttons.select_city")}
           </div>
         </div>
       </div>
@@ -146,7 +154,7 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-8 mt-10">
+      <div className="grid grid-cols-3 gap-8 mt-10 max-sm:grid-cols-1">
         {(searchQuery ? filteredRestaurants : restaurants).map((res: any) => (
           <RestaurantCard
             key={res.id}

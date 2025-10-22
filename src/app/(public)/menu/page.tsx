@@ -22,7 +22,7 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const [isDishInfoModalOpen, setIsDishInfoModalOpen] = useState(false);
   const [selectedDish, setSelectedDish] = useState<any>(null);
 
@@ -159,7 +159,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="pt-20">
+    <div className="pt-20 max-sm:pt-5">
       {/* Search Section */}
       <div className="px-20 mb-8">
         <div className="max-w-2xl mx-auto">
@@ -176,7 +176,7 @@ export default function MenuPage() {
         </div>
       </div>
 
-      <div className="flex gap-8 px-20">
+      <div className="flex gap-8 px-20 max-sm:px-4">
         <div className="w-1/4 h-fit sticky top-30">
           <ul className="space-y-4">
             {categories.map((cat: any, idx: number) => (
@@ -184,7 +184,9 @@ export default function MenuPage() {
                 key={cat.id}
                 onClick={() => scrollToSection(idx)}
                 className={`cursor-pointer text-lg font-medium ${
-                  activeIndex === idx ? "text-black font-semibold" : "text-gray-500"
+                  activeIndex === idx
+                    ? "text-black font-semibold"
+                    : "text-gray-500"
                 }`}
               >
                 {getLocalized(cat, "name")}
@@ -238,7 +240,7 @@ export default function MenuPage() {
               <h2 className="text-xl font-bold text-gray-800 mb-5">
                 {getLocalized(cat, "name")}
               </h2>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-1">
                 {(groupedDishes[cat.id] || []).map((dish: any) => (
                   <MenuItem
                     key={dish.id}
@@ -255,7 +257,7 @@ export default function MenuPage() {
         </div>
       </div>
 
-      <div className="px-20 mb-10">
+      <div className="px-20 my-10 max-sm:px-4">
         <BonusAppPromo />
       </div>
 

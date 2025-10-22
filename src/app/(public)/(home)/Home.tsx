@@ -36,7 +36,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex  flex-col px-20 mb-20 w-full">
+    <div className="flex  flex-col px-20 mb-20 w-full max-sm:px-4">
       <SliderComponent
         height="21/9"
         imageSrc={[banner1, banner2, banner3, banner2, banner3]}
@@ -62,7 +62,9 @@ export default function Home() {
 
       <RestaurantList searchQuery={searchQuery} />
       <DishList onDishClick={handleDishClick} />
-      <BonusAppPromo />
+      <div className="mt-20 max-sm:mt-10">
+        <BonusAppPromo />
+      </div>
 
       {isDishModalOpen && selectedDish && (
         <DishInfo
