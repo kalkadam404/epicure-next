@@ -41,7 +41,7 @@ export function RestaurantCard({
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           onError={(e) => {
-            e.currentTarget.src = '/images/placeholder.svg';
+            e.currentTarget.src = "/images/placeholder.svg";
           }}
         />
       </div>
@@ -54,7 +54,7 @@ export function RestaurantCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-gray-700">
+      <div className="flex items-start gap-2 text-gray-700">
         <Image src={fork} alt="" width={25} height={24} />
         <span>{menuType}</span>
       </div>
