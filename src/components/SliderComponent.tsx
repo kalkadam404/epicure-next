@@ -10,14 +10,14 @@ interface Props {
   imageSrc?: (string | StaticImageData)[];
   title?: string;
   description?: string;
-  height?: "16/9" | "3/4";
+  height?: "21/9" | "3/4";
 }
 
 export default function SliderComponent({
   imageSrc,
   title,
   description,
-  height = "16/9",
+  height = "21/9",
 }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const aspectClass = height === "3/4" ? "aspect-[3/4]" : "aspect-[16/9]";
