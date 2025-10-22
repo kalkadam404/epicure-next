@@ -86,6 +86,10 @@ export const menuAPI = {
   getMenuItemsByType: (typeId: number) => {
     return apiClient.get(`/products/menu-items/?menu_type=${typeId}`);
   },
+
+  getPopularItems: () => {
+    return apiClient.get('/products/menu-items/popular/');
+  },
 };
 
 export const userAPI = {

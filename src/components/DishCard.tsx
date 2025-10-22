@@ -1,8 +1,7 @@
-import type { StaticImageData } from "next/image";
 import Image from "next/image";
 
 interface Props {
-  img: string | StaticImageData;
+  img: string;
   title: string;
   restaurant: string;
   category: string;
@@ -12,7 +11,13 @@ interface Props {
 export function DishCard({ img, title, restaurant, category, price }: Props) {
   return (
     <div className="bg-white rounded-[30px] shadow-md overflow-hidden max-w-sm cursor-pointer flex flex-col h-full">
-      <Image src={img} alt="dish" className="w-full h-60 object-cover" />
+      <Image 
+        src={img} 
+        alt="dish" 
+        width={400}
+        height={240}
+        className="w-full h-60 object-cover" 
+      />
 
       <div className="p-5 flex flex-col flex-1 justify-between">
         <div>
