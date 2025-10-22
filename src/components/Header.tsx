@@ -7,12 +7,14 @@ import { useTranslation } from "react-i18next";
 import { usePathname } from "next/navigation";
 import { Login } from "./Login";
 import { Register } from "./Register";
+import BookingModal from "./BookModal";
 
 export function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isBookModalOpen, setIsBookModalOpen] = useState(false);
 
   const { i18n, t } = useTranslation();
   const pathname = usePathname();
@@ -38,6 +40,9 @@ export function Header() {
   }, []);
   return (
     <>
+      {isBookModalOpen && (
+        <BookingModal onClose={() => setIsBookModalOpen(false)} />
+      )}
       <Login isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
       <Register
         isOpen={isRegisterOpen}
@@ -48,7 +53,8 @@ export function Header() {
         <div className="container mx-auto px-6 py-3 max-sm:px-4">
           <div className="flex items-center justify-between max-sm:flex-row-reverse">
             <Link
-              href={"/"}
+              href={""}
+              onClick={() => setIsBookModalOpen(true)}
               className="flex items-center gap-3 group max-sm:flex-row-reverse"
             >
               <Image
@@ -71,7 +77,7 @@ export function Header() {
             <nav className="hidden md:flex items-center gap-10 text-gray-700">
               {[
                 { href: "/menu", label: t("menu") },
-                { href: "/booking", label: t("booking") },
+                { href: "", label: t("booking") },
                 { href: "/offers", label: t("packages") },
                 { href: "/about", label: t("about") },
               ].map(({ href, label }) => (
