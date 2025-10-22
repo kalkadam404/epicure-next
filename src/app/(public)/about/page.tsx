@@ -13,9 +13,8 @@ import twitter from "@/assets/twit.svg";
 import me from "@/assets/me.jpeg";
 import alzhik from "@/assets/alzhik.jpg";
 import abu from "@/assets/abu.jpg";
-import jony from "@/assets/jony.jpg";
-import aslan from "@/assets/aslan.jpg";
 import { PersonCard } from "@/components/PersonCard";
+import { BonusAppPromo } from "@/components/BonusAppPromo";
 
 // export const metadata: Metadata = {
 //   title: "Epicure-home",
@@ -43,30 +42,20 @@ export default function AboutPage() {
       job: t("our_team.designer"),
       about: t("our_team.description4"),
     },
-    {
-      img: aslan,
-      name: "Аслан Мустафаев",
-      job: t("our_team.waiter"),
-      about: t("our_team.description3"),
-    },
-    {
-      img: jony,
-      name: "Жәнібек Мырзаханов",
-      job: t("our_team.designer"),
-      about: t("our_team.description4"),
-    },
   ];
 
   return (
-    <div className="flex flex-col items-center gap-5 mt-10">
+    <div className="flex flex-col items-center gap-5 mt-10 max-sm:mt-2">
       <div className="font-bold text-4xl">{t("about")}</div>
-      <p className="text-gray-400 text-lg font-medium text-center w-[600px]">
+      <p className="text-gray-400 text-lg font-medium text-center w-[600px] max-sm:w-full">
         {t("aboutUs.title_mini")}
       </p>
-      <main className="flex gap-5 justify-between items-stretch mt-10 mb-20 px-20">
+      <main className="flex gap-5 justify-between items-stretch mt-10 mb-20 px-20 max-sm:px-4 max-sm:flex-col-reverse max-sm:mt-0 max-sm:mb-2">
         <div className="flex flex-col gap-4" data-aos="fade-down">
-          <div className="font-bold text-5xl">{t("aboutUs.our_story")}</div>
-          <div className="flex flex-col gap-1 mt-5 w-[650px]">
+          <div className="font-bold text-5xl max-sm:text-3xl">
+            {t("aboutUs.our_story")}
+          </div>
+          <div className="flex flex-col gap-1 mt-5 w-[650px] max-sm:w-full">
             <div className="text-gray-400 text-lg font-medium mb-4">
               {t("aboutUs.description1")}
             </div>
@@ -78,7 +67,7 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
-        <div className="   rounded-lg" data-aos="fade-up">
+        <div className="rounded-lg overflow-hidden" data-aos="fade-up">
           <Image
             src={historyImg}
             alt=""
@@ -88,9 +77,14 @@ export default function AboutPage() {
           />
         </div>
       </main>
-      <div className="font-bold text-4xl">{t("aboutUs.our_team")}</div>
-      <div className="px-20 mt-10 space-y-10">
-        <div className="grid grid-cols-3 gap-8" data-aos="fade-down">
+      <div className="font-bold text-4xl max-sm:text-2xl">
+        {t("aboutUs.our_team")}
+      </div>
+      <div className="px-20 mt-10 space-y-10 max-sm:px-4 max-sm:mt-2">
+        <div
+          className="grid grid-cols-3 gap-8 max-sm:grid-cols-1"
+          data-aos="fade-down"
+        >
           {persons.slice(0, 3).map((person, index) => (
             <PersonCard
               key={"row1-" + index}
@@ -101,27 +95,19 @@ export default function AboutPage() {
             />
           ))}
         </div>
-
-        <div className="flex justify-center gap-8" data-aos="fade-up">
-          {persons.slice(3).map((person, index) => (
-            <PersonCard
-              key={"row2-" + index}
-              name={person.name}
-              img={person.img}
-              job={person.job}
-              about={person.about}
-            />
-          ))}
-        </div>
       </div>
-      <div className="px-20 mb-10">{/* <BonusAppPromo /> */}</div>
+      <div className="px-20 mb-10 max-sm:px-0 max-sm:mb-2">
+        <BonusAppPromo />
+      </div>
       <div
-        className="bg-[#FAFAFA] flex items-start gap-5 w-full p-10 mt-10"
+        className="bg-[#FAFAFA] flex items-start max-sm:flex-col gap-5 w-full p-10 mt-10 max-sm:px-4 max-sm:py-2"
         data-aos="fade-up"
       >
-        <div className="flex flex-col gap-5 w-1/2">
+        <div className="flex flex-col gap-5 w-1/2 max-sm:w-full">
           <div className="font-bold text-2xl">{t("aboutUs.contact_us")}</div>
-          <div className="w-[600px]">{t("aboutUs.contact_description")}</div>
+          <div className="w-[600px] max-sm:w-full">
+            {t("aboutUs.contact_description")}
+          </div>
           <div className="flex flex-col gap-3">
             <div className="flex gap-2 items-center">
               <Image src={phone} alt="" />
@@ -166,8 +152,8 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-5 w-1/2">
-          <div className="grid grid-cols-2 gap-5">
+        <div className="flex flex-col gap-5 w-1/2 max-sm:w-full">
+          <div className="grid grid-cols-2 gap-5 max-sm:grid-cols-1">
             <div>
               <label className="block text-gray-700 font-medium">
                 {t("inputs.name")}

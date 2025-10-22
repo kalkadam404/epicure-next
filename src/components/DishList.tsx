@@ -72,14 +72,17 @@ export function DishList({ onDishClick }: DishListProps = {}) {
   return (
     <div className="flex flex-col mt-12" data-aos="fade-up">
       <div className="flex w-full items-center justify-between">
-        <div className="font-bold text-3xl">{t("popularDishes")}</div>
-        <div className="flex items-center gap-4">
+        <div className="font-bold text-3xl max-sm:text-xl">
+          {t("popularDishes")}
+        </div>
+        <div className="flex items-center gap-4 max-sm:hidden">
           <div className="rounded-full border-2 border-[#E6E8EC] cursor-pointer hover:bg-gray-100">
             <Image
               src={arrow_left}
               alt="Предыдущая страница"
               width={30}
               height={30}
+              className="max-sm:h-6 max-sm:w-6"
             />
           </div>
           <div className="rounded-full border-2 border-[#E6E8EC] cursor-pointer hover:bg-gray-100">
@@ -88,6 +91,7 @@ export function DishList({ onDishClick }: DishListProps = {}) {
               alt="Следующая страница"
               width={30}
               height={30}
+              className="max-sm:h-6 max-sm:w-6"
             />
           </div>
         </div>

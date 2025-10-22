@@ -22,7 +22,7 @@ export default function SliderComponent({
   const [activeIndex, setActiveIndex] = useState(0);
   return (
     <div
-      className={` relative aspect-[${height}]  max-sm:-mt-6 max-sm:aspect-[3/4]`}
+      className={` relative aspect-[${height}]  max-sm:-mx-4 max-sm:aspect-[3/4]`}
     >
       <Swiper
         spaceBetween={30}

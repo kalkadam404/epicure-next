@@ -55,7 +55,7 @@ export default function OffersPage() {
 
   const handleSubscribe = async () => {
     if (!email) return;
-    
+
     try {
       console.log("Subscribe email:", email);
       setEmail("");
@@ -80,8 +80,8 @@ export default function OffersPage() {
   }
 
   return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4 mb-12 text-center">
+    <section className="py-16 bg-white max-sm:py-4">
+      <div className="container mx-auto px-4 mb-12 text-center max-sm:mb-8">
         <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
           {t("offers_section.title")}
         </h2>
@@ -91,7 +91,7 @@ export default function OffersPage() {
         <div className="w-20 h-1 bg-black mx-auto mt-6"></div>
       </div>
 
-      <div className="px-20 mx-auto">
+      <div className="px-20 mx-auto max-sm:px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {offers.map((offer, index) => (
             <OfferCard
@@ -114,11 +114,11 @@ export default function OffersPage() {
         </div>
       </div>
 
-      <div className="px-20 mb-5">
+      <div className="px-20 mb-5 mt-20 max-sm:px-4 max-sm:mb-0 max-sm:mt-5">
         <BonusAppPromo />
       </div>
 
-      <div className="mx-auto mt-16 px-20">
+      <div className="mx-auto mt-16 px-20 max-sm:px-4 max-sm:mt-4">
         <div className="bg-gray-100 p-8 rounded-lg text-center">
           <h3 className="text-2xl font-bold text-black mb-4">
             {t("offers_section.for_subscribers")}
@@ -127,7 +127,7 @@ export default function OffersPage() {
             {t("offers_section.for_subscribers_description")}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <input
               type="email"
               placeholder={t("inputs.your_email")}

@@ -45,7 +45,10 @@ export function DishInfo({ isOpen, selectedDish, onClose }: DishInfoProps) {
         onClick={onClose}
       />
 
-      <div className="relative bg-white w-[550px] shadow-xl flex flex-col items-start rounded-lg gap-5 py-9 px-10 m-auto z-50 max-h-[80vh] overflow-y-auto">
+      <div
+        className="relative bg-white w-[550px] shadow-xl flex flex-col items-start rounded-lg gap-5 py-9 px-10 m-auto z-50 max-h-[80vh] overflow-y-auto max-sm:w-full max-sm:mx-4
+      "
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 cursor-pointer hover:opacity-70 transition-opacity"
