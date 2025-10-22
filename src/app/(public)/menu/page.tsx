@@ -87,14 +87,14 @@ export default function MenuPage() {
       const dishName = getLocalized(dish, "name").toLowerCase();
       const restaurantName = dish.restaurant_details?.name?.toLowerCase() || "";
       const categoryName = dish.menu_type_details?.name?.toLowerCase() || "";
-      
+
       return (
         dishName.includes(query.toLowerCase()) ||
         restaurantName.includes(query.toLowerCase()) ||
         categoryName.includes(query.toLowerCase())
       );
     });
-    
+
     setFilteredDishList(filtered);
   };
 
@@ -166,7 +166,7 @@ export default function MenuPage() {
           <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
             Поиск блюд
           </h2>
-          <SearchComponent 
+          <SearchComponent
             showRestaurants={false}
             showDishes={true}
             className="bg-white rounded-2xl shadow-lg border border-gray-100"
@@ -214,7 +214,7 @@ export default function MenuPage() {
                   {filteredDishList.map((dish: any) => (
                     <MenuItem
                       key={dish.id}
-                      img={getImageUrl(dish.image)}
+                      img={getImageUrl(dish.image_url || dish.image || "")}
                       title={getLocalized(dish, "name")}
                       category={dish.menu_type_details?.name || ""}
                       price={dish.price}
@@ -225,35 +225,38 @@ export default function MenuPage() {
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   <p>По вашему запросу ничего не найдено</p>
-                  <p className="text-sm mt-2">Попробуйте изменить поисковый запрос</p>
+                  <p className="text-sm mt-2">
+                    Попробуйте изменить поисковый запрос
+                  </p>
                 </div>
               )}
             </div>
           )}
-          
-          {!searchQuery && categories.map((cat: any, idx: number) => (
-            <div
-              key={cat.id}
-              id={`category-${idx}`}
-              className="space-y-4 scroll-mt-[110px]"
-            >
-              <h2 className="text-xl font-bold text-gray-800 mb-5">
-                {getLocalized(cat, "name")}
-              </h2>
-              <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-1">
-                {(groupedDishes[cat.id] || []).map((dish: any) => (
-                  <MenuItem
-                    key={dish.id}
-                    img={getImageUrl(dish.image)}
-                    title={getLocalized(dish, "name")}
-                    category={dish.menu_type_details?.name || ""}
-                    price={dish.price}
-                    onClick={() => openDishModal(dish)}
-                  />
-                ))}
+
+          {!searchQuery &&
+            categories.map((cat: any, idx: number) => (
+              <div
+                key={cat.id}
+                id={`category-${idx}`}
+                className="space-y-4 scroll-mt-[110px]"
+              >
+                <h2 className="text-xl font-bold text-gray-800 mb-5">
+                  {getLocalized(cat, "name")}
+                </h2>
+                <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-1">
+                  {(groupedDishes[cat.id] || []).map((dish: any) => (
+                    <MenuItem
+                      key={dish.id}
+                      img={getImageUrl(dish.image_url || dish.image || "")}
+                      title={getLocalized(dish, "name")}
+                      category={dish.menu_type_details?.name || ""}
+                      price={dish.price}
+                      onClick={() => openDishModal(dish)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
 
