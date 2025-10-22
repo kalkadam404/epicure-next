@@ -8,8 +8,13 @@ import locationIcon from "@/assets/location.svg";
 import { restaurantAPI } from "@/lib/api";
 import Image from "next/image";
 
-export function RestaurantList() {
+interface RestaurantListProps {
+  searchQuery?: string;
+}
+
+export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
   const [restaurants, setRestaurants] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<any>(null);
@@ -29,8 +34,10 @@ export function RestaurantList() {
 
     try {
       const { data } = await restaurantAPI.getRestaurants(cityId || undefined);
-      setRestaurants(Array.isArray(data) ? data : data.results || []);
-      console.log("Fetched restaurants:", restaurants);
+      const restaurantData = Array.isArray(data) ? data : data.results || [];
+      setRestaurants(restaurantData);
+      setFilteredRestaurants(restaurantData);
+      console.log("Fetched restaurants:", restaurantData);
     } catch (err) {
       console.error("Error fetching restaurants:", err);
       setError("Ошибка при загрузке ресторанов");
@@ -39,9 +46,47 @@ export function RestaurantList() {
     }
   };
 
+  // Функция фильтрации ресторанов по поисковому запросу
+  const filterRestaurants = (query: string) => {
+    console.log("Filtering restaurants with query:", query);
+    console.log("Available restaurants:", restaurants);
+    
+    if (!query.trim()) {
+      console.log("Empty query, showing all restaurants");
+      setFilteredRestaurants(restaurants);
+      return;
+    }
+
+    const filtered = restaurants.filter((restaurant: any) => {
+      const name = restaurant.name?.toLowerCase() || "";
+      const description = getLocalized(restaurant, "description")?.toLowerCase() || "";
+      const city = restaurant.city?.name?.toLowerCase() || "";
+      
+      const matches = (
+        name.includes(query.toLowerCase()) ||
+        description.includes(query.toLowerCase()) ||
+        city.includes(query.toLowerCase())
+      );
+      
+      console.log(`Restaurant ${name}: matches=${matches}`);
+      return matches;
+    });
+    
+    console.log("Filtered results:", filtered);
+    setFilteredRestaurants(filtered);
+  };
+
   useEffect(() => {
     fetchRestaurants();
   }, []);
+
+  // Эффект для фильтрации при изменении поискового запроса или ресторанов
+  useEffect(() => {
+    if (restaurants.length > 0) {
+      console.log("Filtering restaurants with query:", searchQuery);
+      filterRestaurants(searchQuery);
+    }
+  }, [searchQuery, restaurants]);
 
   const handleCitySelection = (city: any) => {
     setSelectedCity(city);
@@ -60,7 +105,9 @@ export function RestaurantList() {
     <div className="flex flex-col mt-10" data-aos="fade-up">
       <div className="flex w-full items-center justify-between">
         <div className="font-bold text-3xl">
-          {selectedCity
+          {searchQuery 
+            ? `Результаты поиска для "${searchQuery}"`
+            : selectedCity
             ? t("restaurantInCity", {
                 city: getLocalized(selectedCity, "name"),
               })
@@ -83,7 +130,14 @@ export function RestaurantList() {
 
       {error && <div className="mt-10 text-center text-red-500">{error}</div>}
 
-      {restaurants.length === 0 && (
+      {searchQuery && filteredRestaurants.length === 0 && !isLoading && (
+        <div className="mt-10 text-center text-gray-500">
+          <p>По вашему запросу "{searchQuery}" ничего не найдено</p>
+          <p className="text-sm mt-2">Попробуйте изменить поисковый запрос</p>
+        </div>
+      )}
+
+      {!searchQuery && restaurants.length === 0 && !isLoading && (
         <div className="mt-10 text-center">
           {selectedCity
             ? t("noRestaurantsInCity") ||
@@ -93,7 +147,7 @@ export function RestaurantList() {
       )}
 
       <div className="grid grid-cols-3 gap-8 mt-10">
-        {restaurants.map((res: any) => (
+        {(searchQuery ? filteredRestaurants : restaurants).map((res: any) => (
           <RestaurantCard
             key={res.id}
             img={res.photo}
