@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { cityService } from "@/services";
-
-interface City {
-  id: number;
-  name: string;
-  name_ru: string;
-  name_en: string;
-  name_kz: string;
-}
+import { cityService, type City } from "@/services";
 
 interface CityModalProps {
   isOpen: boolean;

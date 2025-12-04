@@ -6,24 +6,7 @@ import { DishCard } from "./DishCard";
 import Image from "next/image";
 import arrow_left from "@/assets/arrow_left.svg";
 import arrow_right from "@/assets/arrow_right.svg";
-import { menuService, ImageService } from "@/services";
-
-interface Dish {
-  id: number;
-  name: string;
-  name_ru: string;
-  name_en: string;
-  name_kz: string;
-  image_url?: string;
-  image?: string;
-  price: number;
-  restaurant_details?: {
-    name: string;
-  };
-  menu_type_details?: {
-    name: string;
-  };
-}
+import { menuService, ImageService, type Dish } from "@/services";
 
 interface DishListProps {
   onDishClick?: (dish: Dish) => void;

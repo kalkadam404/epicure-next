@@ -1,26 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-
-interface Dish {
-  id: number;
-  name: string;
-  name_ru: string;
-  name_en: string;
-  name_kz: string;
-  description: string;
-  description_ru: string;
-  description_en: string;
-  description_kz: string;
-  price: number;
-  calories: number;
-  proteins: number;
-  fats: number;
-  carbohydrates: number;
-  restaurant_details: {
-    name: string;
-  };
-}
+import type { Dish } from "@/services";
 
 interface DishInfoProps {
   isOpen: boolean;

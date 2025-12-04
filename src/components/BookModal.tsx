@@ -4,45 +4,11 @@ import {
   cityService,
   menuService,
   ImageService,
+  type City,
+  type Restaurant,
+  type Dish,
 } from "@/services";
 import { bookingAPI } from "@/lib/api";
-
-interface City {
-  id: number;
-  name: string;
-}
-
-interface Restaurant {
-  id: number;
-  name: string;
-  name_ru?: string;
-  name_kz?: string;
-  name_en?: string;
-  address: string;
-  photo?: string;
-  image?: string;
-  rating?: number;
-  description?: string;
-  description_ru?: string;
-  description_kz?: string;
-  description_en?: string;
-  city?: City | number;
-}
-
-interface Dish {
-  id: number;
-  name: string;
-  name_ru?: string;
-  name_kz?: string;
-  name_en?: string;
-  description?: string;
-  description_ru?: string;
-  description_kz?: string;
-  description_en?: string;
-  price: number;
-  image?: string;
-  image_url?: string;
-}
 
 interface CalendarDay {
   number: number;

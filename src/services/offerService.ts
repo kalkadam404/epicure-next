@@ -1,24 +1,35 @@
 import { apiService } from './apiService';
 import type { AxiosResponse } from 'axios';
 
+export interface OfferItem {
+  description: string;
+  description_ru?: string;
+  description_en?: string;
+  description_kz?: string;
+}
+
 export interface Offer {
   id: number;
   title: string;
   title_ru?: string;
   title_kz?: string;
   title_en?: string;
-  description: string;
+  description?: string;
   description_ru?: string;
   description_kz?: string;
   description_en?: string;
   image: string;
-  old_price?: number;
-  new_price: number;
+  old_price?: string | number;
+  new_price: string | number;
   restaurant?: {
     id: number;
     name: string;
   };
-  is_active: boolean;
+  is_active?: boolean;
+  items?: OfferItem[];
+  badge?: string;
+  people_count?: number;
+  per_person?: boolean;
 }
 
 export interface OfferListResponse {

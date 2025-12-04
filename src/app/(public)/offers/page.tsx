@@ -2,32 +2,10 @@
 
 import { BonusAppPromo } from "@/components/BonusAppPromo";
 import { OfferCard } from "@/components/OfferCard";
-import { offerService } from "@/services";
+import { offerService, type Offer } from "@/services";
 import type { Metadata } from "next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface OfferItem {
-  description: string;
-  description_ru: string;
-  description_en: string;
-  description_kz: string;
-}
-
-interface Offer {
-  id: number;
-  title: string;
-  title_ru: string;
-  title_en: string;
-  title_kz: string;
-  image: string;
-  old_price: string;
-  new_price: string;
-  items: OfferItem[];
-  badge?: string;
-  people_count: number;
-  per_person: boolean;
-}
 
 export default function OffersPage() {
   const { t, i18n } = useTranslation();
@@ -100,7 +78,7 @@ export default function OffersPage() {
               image={offer.image}
               oldPrice={Number(offer.old_price)}
               newPrice={Number(offer.new_price)}
-              description={offer.items}
+              description={offer.items || []}
               badge={offer.badge}
               peopleCount={offer.people_count}
               perPerson={offer.per_person}

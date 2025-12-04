@@ -1,15 +1,8 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { ImageService } from "@/services";
+import { ImageService, type OfferItem } from "@/services";
 import Image from "next/image";
-
-interface OfferItem {
-  description: string;
-  description_ru: string;
-  description_en: string;
-  description_kz: string;
-}
 
 interface Props {
   title: string;

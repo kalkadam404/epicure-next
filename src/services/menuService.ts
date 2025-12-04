@@ -20,13 +20,18 @@ export interface Dish {
   description_kz?: string;
   description_en?: string;
   price: number;
-  image: string;
+  image?: string;
+  image_url?: string;
   menu_type_details?: MenuType;
   restaurant_details?: {
     id: number;
     name: string;
   };
   is_popular?: boolean;
+  calories?: number;
+  proteins?: number;
+  fats?: number;
+  carbohydrates?: number;
 }
 
 export interface DishListResponse {
