@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import logo_w from "@/assets/logo_w.svg";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 
 interface SidebarProps {

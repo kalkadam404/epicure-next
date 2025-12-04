@@ -16,18 +16,29 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      // Динамически получаем конфигурацию из .env
-      getImageConfig(),
-      // Локальная разработка (fallback)
+      {
+        protocol: 'http',
+        hostname: '188.94.158.71',
+        port: '8001',
+        pathname: '/media/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '188.94.158.71',
+        pathname: '/media/**',
+      },
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '8000',
         pathname: '/media/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
   },
-  /* config options here */
 };
 
 export default nextConfig;

@@ -5,7 +5,7 @@ import { SearchComponent } from "@/components/SearchComponent";
 import type { Metadata } from "next";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo } from "react";
-import { dishAPI, menuAPI, apiClient, getImageUrl } from "@/lib/api";
+import { menuService, ImageService } from "@/services";
 import { MenuItem } from "@/components/MenuItem";
 
 // export const metadata: Metadata = {
@@ -43,8 +43,8 @@ export default function MenuPage() {
 
   const fetchCategories = async () => {
     try {
-      const { data } = await menuAPI.getMenuTypes();
-      setCategories(data.results || data);
+      const data = await menuService.getMenuTypes();
+      setCategories(data);
       console.log("categories", data);
     } catch (err) {
       console.log("err categories", err);
@@ -54,9 +54,9 @@ export default function MenuPage() {
 
   const fetchDishes = async () => {
     try {
-      const { data } = await menuAPI.getMenuItems();
+      const data = await menuService.getMenuItems();
       console.log("dishes", data);
-      const dishes = data.results || data;
+      const dishes = (data as any).results || data;
       setDishList(dishes);
       setFilteredDishList(dishes);
     } catch (err) {
@@ -214,7 +214,7 @@ export default function MenuPage() {
                   {filteredDishList.map((dish: any) => (
                     <MenuItem
                       key={dish.id}
-                      img={getImageUrl(dish.image_url || dish.image || "")}
+                      img={ImageService.getImageUrl(dish.image_url || dish.image || "")}
                       title={getLocalized(dish, "name")}
                       category={dish.menu_type_details?.name || ""}
                       price={dish.price}
@@ -247,7 +247,7 @@ export default function MenuPage() {
                   {(groupedDishes[cat.id] || []).map((dish: any) => (
                     <MenuItem
                       key={dish.id}
-                      img={getImageUrl(dish.image_url || dish.image || "")}
+                      img={ImageService.getImageUrl(dish.image_url || dish.image || "")}
                       title={getLocalized(dish, "name")}
                       category={dish.menu_type_details?.name || ""}
                       price={dish.price}

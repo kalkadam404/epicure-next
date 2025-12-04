@@ -18,6 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="description" content="Book tables at the best restaurants in Kazakhstan" />
+      </head>
       <body className={fontManrope.className}>
         <Header />
         <div className="pt-32 w-full max-sm:pt-14">{children}</div>

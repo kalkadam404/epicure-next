@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { cityAPI } from "@/lib/api";
+import { cityService } from "@/services";
 
 interface City {
   id: number;
@@ -47,8 +47,8 @@ export function CityModal({
     setIsLoading(true);
     setError(null);
     try {
-      const { data } = await cityAPI.getCities();
-      setCities(data.results || data);
+      const data = await cityService.getCities();
+      setCities(data);
     } catch (err) {
       console.error("Ошибка загрузки городов:", err);
       setError("Не удалось загрузить список городов");

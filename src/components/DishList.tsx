@@ -6,7 +6,7 @@ import { DishCard } from "./DishCard";
 import Image from "next/image";
 import arrow_left from "@/assets/arrow_left.svg";
 import arrow_right from "@/assets/arrow_right.svg";
-import { menuAPI, getImageUrl } from "@/lib/api";
+import { menuService, ImageService } from "@/services";
 
 interface Dish {
   id: number;
@@ -45,11 +45,8 @@ export function DishList({ onDishClick }: DishListProps = {}) {
     setError(null);
 
     try {
-      const response = await menuAPI.getPopularItems();
-      const data = response.data;
-
-      setDishList(Array.isArray(data) ? data : data.results || []);
-
+      const data = await menuService.getPopularItems();
+      setDishList(data);
       console.log("Fetched popular dishes:", data);
     } catch (err) {
       console.error("Error fetching popular dishes:", err);
@@ -119,7 +116,7 @@ export function DishList({ onDishClick }: DishListProps = {}) {
           {dishList.map((dish) => (
             <div key={dish.id} onClick={() => handleDishClick(dish)}>
               <DishCard
-                img={getImageUrl(dish.image_url || dish.image || "")}
+                img={ImageService.getImageUrl(dish.image_url || dish.image || "")}
                 title={getLocalized(dish, "name")}
                 restaurant={dish.restaurant_details?.name || ""}
                 category={dish.menu_type_details?.name || ""}

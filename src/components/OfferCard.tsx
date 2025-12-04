@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { getImageUrl } from "@/lib/api";
+import { ImageService } from "@/services";
 import Image from "next/image";
 
 interface OfferItem {

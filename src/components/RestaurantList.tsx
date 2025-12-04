@@ -5,7 +5,7 @@ import { RestaurantCard } from "./RestaurantCard";
 import { CityModal } from "./CityModal";
 import { useEffect, useState } from "react";
 import locationIcon from "@/assets/location.svg";
-import { restaurantAPI } from "@/lib/api";
+import { restaurantService } from "@/services";
 import Image from "next/image";
 
 interface RestaurantListProps {
@@ -33,10 +33,10 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
     setError(null);
 
     try {
-      const { data } = await restaurantAPI.getRestaurants(cityId || undefined);
-      const restaurantData = Array.isArray(data) ? data : data.results || [];
-      setRestaurants(restaurantData);
-      setFilteredRestaurants(restaurantData);
+      const data = await restaurantService.getRestaurants(cityId || undefined);
+      const restaurantData = Array.isArray(data) ? data : (data as any).results || [];
+      setRestaurants(restaurantData as any);
+      setFilteredRestaurants(restaurantData as any);
       console.log("Fetched restaurants:", restaurantData);
     } catch (err) {
       console.error("Error fetching restaurants:", err);
