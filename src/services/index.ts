@@ -10,6 +10,6 @@ export { cityService } from './cityService';
 export type { City, CityListResponse } from './cityService';
 
 export { offerService } from './offerService';
-export type { Offer, OfferListResponse } from './offerService';
+export type { Offer, OfferItem, OfferListResponse } from './offerService';
 
 export { imageService, ImageService } from './imageService';
