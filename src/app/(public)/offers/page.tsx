@@ -2,7 +2,7 @@
 
 import { BonusAppPromo } from "@/components/BonusAppPromo";
 import { OfferCard } from "@/components/OfferCard";
-import { offerAPI } from "@/lib/api";
+import { offerService } from "@/services";
 import type { Metadata } from "next";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -43,9 +43,9 @@ export default function OffersPage() {
   const fetchOffers = async () => {
     try {
       setLoading(true);
-      const response = await offerAPI.getOffers();
-      setOffers(response.data.results || []);
-      console.log("fetched offers", response.data.results);
+      const data = await offerService.getOffers();
+      setOffers(data);
+      console.log("fetched offers", data);
     } catch (err) {
       console.log("Error fetching offers:", err);
     } finally {

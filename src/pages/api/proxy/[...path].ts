@@ -1,15 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
-// 💡 Твой настоящий backend
-const BACKEND_URL = "http://188.94.158.71:8001/api/v1";
+const BACKEND_URL = process.env.BACKEND_URL;
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
-    const { path = [] } = req.query;
+    const { path = [], ...queryParams } = req.query;
     const targetUrl = `${BACKEND_URL}/${
       Array.isArray(path) ? path.join("/") : path
     }`;
@@ -23,7 +22,7 @@ export default async function handler(
           ? { Authorization: req.headers.authorization }
           : {}),
       },
-      params: req.method === "GET" ? req.query : undefined,
+      params: req.method === "GET" ? queryParams : undefined,
       data: req.method !== "GET" ? req.body : undefined,
     });
 

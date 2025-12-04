@@ -5,7 +5,7 @@ import res from "@/assets/res.svg";
 import fork from "@/assets/fork.svg";
 import timeIcon from "@/assets/time.svg";
 import Image from "next/image";
-import { getImageUrl } from "@/lib/api";
+import { ImageService } from "@/services";
 
 interface RestaurantCardProps {
   img: string;
@@ -35,7 +35,7 @@ export function RestaurantCard({
     <div className="w-full h-full max-w-md bg-white rounded-3xl shadow-lg p-5 space-y-4 max-sm:px-4">
       <div className="relative h-60 w-full rounded-2xl overflow-hidden bg-gray-100">
         <Image
-          src={getImageUrl(img)}
+          src={ImageService.getImageUrl(img)}
           alt={ResName || "Ресторан"}
           fill
           className="object-cover"

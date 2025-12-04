@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
-  restaurantAPI,
-  cityAPI,
-  menuAPI,
-  bookingAPI,
-  getImageUrl,
-} from "@/lib/api";
+  restaurantService,
+  cityService,
+  menuService,
+  ImageService,
+} from "@/services";
+import { bookingAPI } from "@/lib/api";
 
 interface City {
   id: number;
@@ -129,11 +129,10 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
     const fetchCities = async () => {
       try {
         setLoading(true);
-        const response = await cityAPI.getCities();
-        const citiesData = response.data.results || response.data;
-        setCities(citiesData);
-        if (citiesData.length > 0) {
-          setSelectedCity(citiesData[0]);
+        const cities = await cityService.getCities();
+        setCities(cities);
+        if (cities.length > 0) {
+          setSelectedCity(cities[0]);
         }
       } catch (err) {
         console.error("Error fetching cities:", err);
@@ -152,8 +151,8 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
     const fetchRestaurants = async () => {
       try {
         setLoading(true);
-        const response = await restaurantAPI.getRestaurants(selectedCity.id);
-        setRestaurants(response.data.results || response.data);
+        const data = await restaurantService.getRestaurants(selectedCity.id);
+        setRestaurants((data as any).results || data);
       } catch (err) {
         console.error("Error fetching restaurants:", err);
         setError("Не удалось загрузить рестораны");
@@ -171,16 +170,16 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
     const fetchMenu = async () => {
       try {
         setLoading(true);
-        const response = await restaurantAPI.getRestaurantMenu(
+        const data = await restaurantService.getRestaurantMenu(
           selectedRestaurant.id
         );
-        setDishes(response.data.results || response.data);
+        setDishes((data as any).results || data);
       } catch (err) {
         console.error("Error fetching menu:", err);
         // Fallback to general menu items
         try {
-          const fallbackResponse = await menuAPI.getMenuItems();
-          setDishes(fallbackResponse.data.results || fallbackResponse.data);
+          const fallbackData = await menuService.getMenuItems();
+          setDishes((fallbackData as any).results || fallbackData);
         } catch (fallbackErr) {
           console.error("Error fetching fallback menu:", fallbackErr);
           setError("Не удалось загрузить меню");
@@ -757,7 +756,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
                       <div className="flex items-center gap-4 flex-1">
                         <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
                           <img
-                            src={getImageUrl(
+                            src={ImageService.getImageUrl(
                               dish.image_url || dish.image || ""
                             )}
                             alt={getLocalized(dish, "name")}

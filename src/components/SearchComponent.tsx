@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import searchIcon from "@/assets/search_icon.svg";
 import closeIcon from "@/assets/close.svg";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface SearchComponentProps {
   showRestaurants?: boolean;
@@ -26,9 +27,11 @@ export function SearchComponent({
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [mounted, setMounted] = useState(false);
-  const handleSearch = async (query: string) => {
+
+  const debouncedQuery = useDebounce(searchQuery, 300);
+
+  const handleSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
       setShowResults(false);
@@ -40,8 +43,6 @@ export function SearchComponent({
     setShowResults(true);
 
     try {
-      // Здесь можно добавить API вызов для поиска
-      // Пока что используем простую фильтрацию
       const results = await performSearch(query);
       setSearchResults(results);
       if (onSearchResults) onSearchResults(query);
@@ -51,49 +52,44 @@ export function SearchComponent({
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [onSearchResults, onClear]);
 
   const performSearch = async (query: string) => {
-    // Заглушка для поиска - в реальном приложении здесь будет API вызов
     return [];
   };
 
-  // Выполняем поиск при изменении searchQuery с дебаунсом
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (debouncedQuery !== undefined) {
       console.log(
         "SearchComponent: calling onSearchResults with:",
-        searchQuery
+        debouncedQuery
       );
       if (onSearchResults) {
-        onSearchResults(searchQuery);
+        onSearchResults(debouncedQuery);
       } else {
-        handleSearch(searchQuery);
+        handleSearch(debouncedQuery);
       }
-    }, 300);
+    }
+  }, [debouncedQuery, onSearchResults, handleSearch]);
 
-    return () => clearTimeout(timer);
-  }, [searchQuery, onSearchResults]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-  };
+  }, []);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setSearchQuery("");
-    setDebouncedQuery("");
     setSearchResults([]);
     setShowResults(false);
     if (onClear) onClear();
     if (onSearchResults) onSearchResults("");
-  };
+  }, [onClear, onSearchResults]);
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSearch(searchQuery);
     }
-  };
+  }, [searchQuery, handleSearch]);
 
   useEffect(() => {
     setMounted(true);
