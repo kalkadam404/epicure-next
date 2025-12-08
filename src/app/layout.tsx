@@ -17,11 +17,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=5"
+        />
         <meta name="theme-color" content="#000000" />
-        <meta name="description" content="Book tables at the best restaurants in Kazakhstan" />
+        <meta
+          name="description"
+          content="Book tables at the best restaurants in Kazakhstan"
+        />
       </head>
       <body className={fontManrope.className}>
         <Header />

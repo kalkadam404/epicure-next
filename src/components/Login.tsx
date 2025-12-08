@@ -13,6 +13,43 @@ export function Login({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  // для инпута номера
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    let newValue = value;
+
+    // Маска для телефона
+    if (name === "phone_number") {
+      const formatPhoneNumber = (value: string) => {
+        // Удаляем все символы, кроме цифр
+        const digits = value.replace(/\D/g, "");
+
+        // Добавляем + перед 7 и форматируем номер в +7 (XXX) XXX-XX-XX
+        if (digits.length === 0) return "+";
+        if (digits[0] !== "7") return "+" + digits;
+        if (digits.length <= 1) return "+7";
+        if (digits.length <= 4) return `+7 (${digits.slice(1)}`;
+        if (digits.length <= 7)
+          return `+7 (${digits.slice(1, 4)}) ${digits.slice(4)}`;
+        if (digits.length <= 9)
+          return `+7 (${digits.slice(1, 4)}) ${digits.slice(
+            4,
+            7
+          )}-${digits.slice(7)}`;
+        return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(
+          7,
+          9
+        )}-${digits.slice(9, 11)}`;
+      };
+      newValue = formatPhoneNumber(value);
+    }
+
+    // Маска для имени — только буквы, пробелы и дефисы
+    if (name === "name") {
+      newValue = newValue.replace(/[^a-zA-Zа-яА-ЯёЁ\s-]/g, "");
+    }
+  };
+
   const { t } = useTranslation();
   if (!isOpen) return null;
   return (

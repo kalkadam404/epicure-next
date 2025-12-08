@@ -134,6 +134,21 @@ export function Header() {
                   }`}
                 />
               </Link>
+              <Link
+                href={"/profile"}
+                className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
+                  isActive("/profile")
+                    ? "text-black"
+                    : "text-gray-800 hover:text-black/70"
+                }`}
+              >
+                {t("myProfile")}
+                <span
+                  className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
+                    isActive("/profile") ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                />
+              </Link>
             </nav>
 
             <div

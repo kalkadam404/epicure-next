@@ -16,6 +16,7 @@ export function SideBar({ isOpen, onClose }: SidebarProps) {
     { name: "Бронирование", href: "/" },
     { name: "Пакеты", href: "/offers" },
     { name: "О Нас", href: "/about" },
+    { name: "Профиль", href: "/profile" },
   ];
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
@@ -59,7 +60,7 @@ export function SideBar({ isOpen, onClose }: SidebarProps) {
                   onClick={onClose}
                   className="flex items-end justify-between tracking-wide py-2.5 border-b border-[#FFFFFF4D]/30 "
                 >
-                  <div className="text-white  font-medium   text-4xl">
+                  <div className="text-white  font-medium   text-3xl">
                     {link.name}
                   </div>
                   <div className="text-white  font-medium  text-xs">
