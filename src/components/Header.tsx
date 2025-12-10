@@ -4,10 +4,12 @@ import logo from "@/assets/logo_w.svg";
 import { useEffect, useRef, useState } from "react";
 import { SideBar } from "./SideBar";
 import { useTranslation } from "react-i18next";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Login } from "./Login";
 import { Register } from "./Register";
 import BookingModal from "./BookModal";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { logoutThunk } from "@/store/slices/authSlice";
 
 export function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -18,6 +20,9 @@ export function Header() {
 
   const { i18n, t } = useTranslation();
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
   const locales = [
     { code: "en", name: "English" },
     { code: "ru", name: "Русский" },
@@ -29,6 +34,7 @@ export function Header() {
     i18n.changeLanguage(lang);
   };
   const menuRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -38,15 +44,39 @@ export function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutThunk()).unwrap();
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const switchToRegister = () => {
+    setIsLoginOpen(false);
+    setIsRegisterOpen(true);
+  };
+
+  const switchToLogin = () => {
+    setIsRegisterOpen(false);
+    setIsLoginOpen(true);
+  };
   return (
     <>
       {isBookModalOpen && (
         <BookingModal onClose={() => setIsBookModalOpen(false)} />
       )}
-      <Login isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      <Login
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onSwitchToRegister={switchToRegister}
+      />
       <Register
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
+        onSwitchToLogin={switchToLogin}
       />
       <SideBar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <header className="fixed top-0 z-30 w-full shadow-sm bg-white/95 backdrop-blur-md">
@@ -189,18 +219,34 @@ export function Header() {
                 </div>
               </div>
 
-              <button
-                className="text-gray-800 hover:text-black text-base font-medium max-sm:hidden"
-                onClick={() => setIsLoginOpen(true)}
-              >
-                {t("login")}
-              </button>
-              <button
-                className="bg-black text-white font-medium rounded-full px-6 py-2 max-sm:hidden"
-                onClick={() => setIsRegisterOpen(true)}
-              >
-                {t("register")}
-              </button>
+              {user ? (
+                <>
+                  <span className="text-gray-800 font-medium max-sm:hidden">
+                    {user.displayName || user.email}
+                  </span>
+                  <button
+                    className="text-red-600 hover:text-red-700 text-base font-medium max-sm:hidden"
+                    onClick={handleLogout}
+                  >
+                    {t("logout") || "Выход"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="text-gray-800 hover:text-black text-base font-medium max-sm:hidden"
+                    onClick={() => setIsLoginOpen(true)}
+                  >
+                    {t("login")}
+                  </button>
+                  <button
+                    className="bg-black text-white font-medium rounded-full px-6 py-2 max-sm:hidden"
+                    onClick={() => setIsRegisterOpen(true)}
+                  >
+                    {t("register")}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

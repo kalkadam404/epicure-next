@@ -5,6 +5,7 @@ import "./globals.css";
 import "@/i18n";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import StoreProvider from "@/store/StoreProvider";
 
 const fontManrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -30,9 +31,11 @@ export default function RootLayout({
         />
       </head>
       <body className={fontManrope.className}>
-        <Header />
-        <div className="pt-32 w-full max-sm:pt-14">{children}</div>
-        <Footer />
+        <StoreProvider>
+          <Header />
+          <div className="pt-32 w-full max-sm:pt-14">{children}</div>
+          <Footer />
+        </StoreProvider>
       </body>
     </html>
   );

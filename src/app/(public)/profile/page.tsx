@@ -2,11 +2,12 @@
 
 export const ssr = false;
 
-import { type ChangeEvent, useMemo, useRef, useState } from "react";
+import { type ChangeEvent, useMemo, useRef, useState, useEffect } from "react";
 import {
   Building2,
   Camera,
   CheckCircle2,
+  LogOut,
   Mail,
   MapPin,
   Phone,
@@ -31,6 +32,11 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar } from "@/components/ui/avatar";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { logoutThunk } from "@/store/slices/authSlice";
+import { useRouter } from "next/navigation";
+import { useFirestoreProfile } from "@/hooks/useFirestoreProfile";
 
 type ProfileData = {
   fullName: string;
@@ -58,42 +64,97 @@ const defaultProfile: ProfileData = {
   avatar: "",
 };
 
-export default function ProfilePage() {
-  const [profile, setProfile] = useLocalStorage<ProfileData>(
-    "epicure-profile",
-    defaultProfile
-  );
-  const [avatarPreview, setAvatarPreview] = useState(profile.avatar ?? "");
+function ProfilePageContent() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
+  const router = useRouter();
+  
+  // Используем Firestore для хранения профиля
+  const { 
+    profile: firestoreProfile, 
+    loading: firestoreLoading,
+    saving: firestoreSaving,
+    updateProfile: updateFirestoreProfile,
+    uploadAvatar
+  } = useFirestoreProfile();
+  
+  // Локальное состояние для формы
+  const [formData, setFormData] = useState<ProfileData>(defaultProfile);
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Загружаем данные из Firestore в форму
+  useEffect(() => {
+    if (firestoreProfile) {
+      setFormData({
+        fullName: firestoreProfile.fullName || '',
+        email: firestoreProfile.email || '',
+        phone: firestoreProfile.phone || '',
+        city: firestoreProfile.city || '',
+        bio: firestoreProfile.bio || '',
+        language: firestoreProfile.preferences?.language || 'ru',
+        notifications: firestoreProfile.preferences?.notifications ?? true,
+        promos: firestoreProfile.preferences?.promos ?? true,
+        darkMode: firestoreProfile.preferences?.darkMode ?? false,
+        avatar: firestoreProfile.avatar || '',
+      });
+      setAvatarPreview(firestoreProfile.avatar || '');
+    }
+  }, [firestoreProfile]);
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutThunk()).unwrap();
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const initials = useMemo(() => {
-    return profile.fullName
+    return formData.fullName
       .split(" ")
       .filter(Boolean)
       .map((part) => part[0])
       .join("")
       .toUpperCase()
       .slice(0, 2);
-  }, [profile.fullName]);
+  }, [formData.fullName]);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  // Загрузка аватара в Firestore
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = typeof reader.result === "string" ? reader.result : "";
-      setAvatarPreview(result);
-      setProfile((prev) => ({ ...prev, avatar: result }));
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Показываем превью локально
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = typeof reader.result === "string" ? reader.result : "";
+        setAvatarPreview(result);
+      };
+      reader.readAsDataURL(file);
+
+      // Загружаем в Firestore
+      const base64 = await uploadAvatar(file);
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 3000);
+    } catch (error: any) {
+      alert(error.message || 'Ошибка загрузки фото');
+      setAvatarPreview(firestoreProfile?.avatar || '');
+    }
   };
 
-  const removeAvatar = () => {
-    setAvatarPreview("");
-    setProfile((prev) => ({ ...prev, avatar: "" }));
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const removeAvatar = async () => {
+    try {
+      await updateFirestoreProfile({ avatar: '' });
+      setAvatarPreview("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error('Error removing avatar:', error);
     }
   };
 
@@ -101,8 +162,42 @@ export default function ProfilePage() {
     field: K,
     value: ProfileData[K]
   ) => {
-    setProfile((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  // Сохранение профиля в Firestore
+  const handleSaveProfile = async () => {
+    try {
+      await updateFirestoreProfile({
+        fullName: formData.fullName,
+        phone: formData.phone,
+        city: formData.city,
+        bio: formData.bio,
+        preferences: {
+          language: formData.language,
+          notifications: formData.notifications,
+          promos: formData.promos,
+          darkMode: formData.darkMode,
+        }
+      });
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 3000);
+    } catch (error: any) {
+      alert(error.message || 'Ошибка сохранения');
+    }
+  };
+
+  // Показываем загрузку
+  if (firestoreLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка профиля из Firestore...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -112,20 +207,41 @@ export default function ProfilePage() {
             <p className="text-sm text-muted-foreground">Профиль</p>
             <h1 className="text-3xl font-bold tracking-tight">Личные данные</h1>
             <p className="text-sm text-muted-foreground">
-              Обновите информацию, чтобы бронирования проходили быстрее.
+              🔥 Данные синхронизируются с Firestore Database
             </p>
           </div>
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
+              disabled={firestoreSaving}
             >
               <UploadCloud className="h-4 w-4" />
               Обновить аватар
             </Button>
-            <Button className="shadow-md">
-              <CheckCircle2 className="h-4 w-4" />
-              Сохранено локально
+            <Button 
+              className="shadow-md"
+              onClick={handleSaveProfile}
+              disabled={firestoreSaving}
+            >
+              {firestoreSaving ? (
+                <>⏳ Сохранение...</>
+              ) : uploadSuccess ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4" />
+                  Сохранено в Firestore
+                </>
+              ) : (
+                <>💾 Сохранить в Firestore</>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <LogOut className="h-4 w-4" />
+              Выход
             </Button>
           </div>
         </div>
@@ -135,11 +251,11 @@ export default function ProfilePage() {
             <CardHeader className="flex-row items-center gap-4">
               <Avatar
                 src={avatarPreview}
-                alt={profile.fullName}
+                alt={formData.fullName}
                 fallback={initials}
               />
               <div className="flex-1">
-                <CardTitle className="text-2xl">{profile.fullName}</CardTitle>
+                <CardTitle className="text-2xl">{formData.fullName}</CardTitle>
 
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge>Премиум доступ</Badge>
@@ -153,14 +269,14 @@ export default function ProfilePage() {
                   Email
                 </div>
                 <p className="text-base font-medium">
-                  {profile.email || "Не указан"}
+                  {formData.email || "Не указан"}
                 </p>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4" />
                   Телефон
                 </div>
                 <p className="text-base font-medium">
-                  {profile.phone || "Не указан"}
+                  {formData.phone || "Не указан"}
                 </p>
               </div>
               <div className="space-y-4 rounded-xl border border-dashed border-border/70 p-4">
@@ -170,7 +286,7 @@ export default function ProfilePage() {
                     Город
                   </div>
                   <Badge variant="secondary">
-                    {profile.city || "Выберите"}
+                    {formData.city || "Выберите"}
                   </Badge>
                 </div>
                 <div className="rounded-lg bg-gradient-to-r from-gray-900 to-gray-800 px-4 py-3 text-white shadow-inner">
@@ -202,7 +318,7 @@ export default function ProfilePage() {
                   </p>
                 </div>
                 <Switch
-                  checked={profile.darkMode}
+                  checked={formData.darkMode}
                   onCheckedChange={(checked) =>
                     updateField("darkMode", checked)
                   }
@@ -217,7 +333,7 @@ export default function ProfilePage() {
                   </p>
                 </div>
                 <Switch
-                  checked={profile.notifications}
+                  checked={formData.notifications}
                   onCheckedChange={(checked) =>
                     updateField("notifications", checked)
                   }
@@ -232,7 +348,7 @@ export default function ProfilePage() {
                   </p>
                 </div>
                 <Switch
-                  checked={profile.promos}
+                  checked={formData.promos}
                   onCheckedChange={(checked) => updateField("promos", checked)}
                   aria-label="Промо"
                 />
@@ -244,7 +360,7 @@ export default function ProfilePage() {
                     <Button
                       key={lang}
                       variant={
-                        profile.language === lang ? "default" : "secondary"
+                        formData.language === lang ? "default" : "secondary"
                       }
                       size="sm"
                       onClick={() => updateField("language", lang)}
@@ -272,7 +388,7 @@ export default function ProfilePage() {
                   <Label htmlFor="fullName">Полное имя</Label>
                   <Input
                     id="fullName"
-                    value={profile.fullName}
+                    value={formData.fullName}
                     onChange={(e) => updateField("fullName", e.target.value)}
                     placeholder="Имя и фамилия"
                   />
@@ -282,16 +398,18 @@ export default function ProfilePage() {
                   <Input
                     id="email"
                     type="email"
-                    value={profile.email}
+                    value={formData.email}
                     onChange={(e) => updateField("email", e.target.value)}
                     placeholder="you@example.com"
+                    disabled
+                    className="bg-gray-100"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Телефон</Label>
                   <Input
                     id="phone"
-                    value={profile.phone}
+                    value={formData.phone}
                     onChange={(e) => updateField("phone", e.target.value)}
                     placeholder="+7 (___) ___-__-__"
                   />
@@ -300,7 +418,7 @@ export default function ProfilePage() {
                   <Label htmlFor="city">Город</Label>
                   <Input
                     id="city"
-                    value={profile.city}
+                    value={formData.city}
                     onChange={(e) => updateField("city", e.target.value)}
                     placeholder="Алматы"
                   />
@@ -311,7 +429,7 @@ export default function ProfilePage() {
                 <Textarea
                   id="bio"
                   rows={4}
-                  value={profile.bio}
+                  value={formData.bio}
                   onChange={(e) => updateField("bio", e.target.value)}
                   placeholder="Поделитесь любимыми кухнями и предпочтениями."
                 />
@@ -320,13 +438,26 @@ export default function ProfilePage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setProfile(defaultProfile)}
+                  onClick={() => setFormData(defaultProfile)}
                 >
                   Сбросить
                 </Button>
-                <Button type="button" className="shadow-md">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Данные сохранены
+                <Button 
+                  type="button" 
+                  className="shadow-md"
+                  onClick={handleSaveProfile}
+                  disabled={firestoreSaving}
+                >
+                  {firestoreSaving ? (
+                    <>⏳ Сохранение...</>
+                  ) : uploadSuccess ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4" />
+                      Сохранено в Firestore
+                    </>
+                  ) : (
+                    <>💾 Сохранить</>
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -344,7 +475,7 @@ export default function ProfilePage() {
                 <div className="relative">
                   <Avatar
                     src={avatarPreview}
-                    alt={profile.fullName}
+                    alt={formData.fullName}
                     fallback={initials || "A"}
                     className="h-32 w-32"
                   />
@@ -390,5 +521,13 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <ProtectedRoute>
+      <ProfilePageContent />
+    </ProtectedRoute>
   );
 }

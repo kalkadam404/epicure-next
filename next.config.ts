@@ -14,6 +14,7 @@ const getImageConfig = () => {
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  outputFileTracingRoot: __dirname,
   images: {
     remotePatterns: [
       {
