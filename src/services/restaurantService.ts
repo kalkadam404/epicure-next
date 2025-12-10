@@ -26,12 +26,30 @@ export interface RestaurantListResponse {
   results: Restaurant[];
 }
 
-class RestaurantService {
-  private readonly baseUrl = '/restaurants';
+export interface RestaurantListParams {
+  city?: number;
+  search?: string;
+  page?: number;
+  page_size?: number;
+}
 
-  async getRestaurants(cityId?: number): Promise<RestaurantListResponse> {
-    const params = cityId ? { city: cityId } : {};
-    const response = await apiService.get<RestaurantListResponse>(this.baseUrl, { params });
+class RestaurantService {
+  private readonly baseUrl = '/api/v1/restaurants';
+
+  async getRestaurants(
+    cityIdOrParams?: number | RestaurantListParams
+  ): Promise<RestaurantListResponse> {
+    let params: RestaurantListParams = {};
+
+    if (typeof cityIdOrParams === 'number') {
+      params.city = cityIdOrParams;
+    } else if (cityIdOrParams) {
+      params = { ...cityIdOrParams };
+    }
+
+    const response = await apiService.get<RestaurantListResponse>(this.baseUrl, {
+      params,
+    });
     return response.data;
   }
 

@@ -14,12 +14,14 @@ interface RestaurantListProps {
 }
 
 export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
-  const [restaurants, setRestaurants] = useState([]);
-  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
+  const [restaurants, setRestaurants] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<any>(null);
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
 
   const { i18n, t, ready } = useTranslation();
 
@@ -29,16 +31,38 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
     return item[`${field}_${lang}`] || item[`${field}_ru`];
   }
 
-  const fetchRestaurants = async (cityId = null) => {
+  const fetchRestaurants = async (options?: { cityId?: number | null; page?: number; query?: string }) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const data = await restaurantService.getRestaurants(cityId || undefined);
+      const page = options?.page ?? 1;
+      const cityId = options?.cityId ?? selectedCity?.id ?? null;
+      const rawQuery = options?.query ?? searchQuery;
+      const trimmedQuery = rawQuery.trim();
+
+      const params: any = {
+        page,
+        page_size: 10,
+      };
+
+      if (cityId) {
+        params.city = cityId;
+      }
+
+      if (trimmedQuery) {
+        params.search = trimmedQuery;
+      }
+
+      const data = await restaurantService.getRestaurants(params);
       const restaurantData = Array.isArray(data) ? data : (data as any).results || [];
+
       setRestaurants(restaurantData as any);
-      setFilteredRestaurants(restaurantData as any);
-      console.log("Fetched restaurants:", restaurantData);
+      setCurrentPage(page);
+      setTotalCount((data as any).count || restaurantData.length || 0);
+      setPageSize((prev) => prev || restaurantData.length || 10);
+
+      console.log("Fetched restaurants from API:", { params, restaurantData });
     } catch (err) {
       console.error("Error fetching restaurants:", err);
       setError("Ошибка при загрузке ресторанов");
@@ -47,51 +71,22 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
     }
   };
 
-  // Функция фильтрации ресторанов по поисковому запросу
-  const filterRestaurants = (query: string) => {
-    console.log("Filtering restaurants with query:", query);
-    console.log("Available restaurants:", restaurants);
-    
-    if (!query.trim()) {
-      console.log("Empty query, showing all restaurants");
-      setFilteredRestaurants(restaurants);
-      return;
-    }
-
-    const filtered = restaurants.filter((restaurant: any) => {
-      const name = restaurant.name?.toLowerCase() || "";
-      const description = getLocalized(restaurant, "description")?.toLowerCase() || "";
-      const city = restaurant.city?.name?.toLowerCase() || "";
-      
-      const matches = (
-        name.includes(query.toLowerCase()) ||
-        description.includes(query.toLowerCase()) ||
-        city.includes(query.toLowerCase())
-      );
-      
-      console.log(`Restaurant ${name}: matches=${matches}`);
-      return matches;
-    });
-    
-    console.log("Filtered results:", filtered);
-    setFilteredRestaurants(filtered);
-  };
-
   useEffect(() => {
     fetchRestaurants();
   }, []);
 
-  // Эффект для фильтрации при изменении поискового запроса или ресторанов
+  // Поиск по ресторанам через backend API при изменении поискового запроса
   useEffect(() => {
-    if (restaurants.length > 0) {
-      console.log("Filtering restaurants with query:", searchQuery);
-      filterRestaurants(searchQuery);
-    }
-  }, [searchQuery, restaurants]);
+    // При первом рендере, когда список ещё не загружен, ничего не делаем —
+    // стартовая загрузка уже выполнится в другом эффекте.
+    if (!restaurants.length && !searchQuery.trim()) return;
+
+    fetchRestaurants({ page: 1, query: searchQuery, cityId: selectedCity?.id ?? null });
+  }, [searchQuery]);
 
   const handleCitySelection = (city: any) => {
     setSelectedCity(city);
-    fetchRestaurants(city.id);
+    fetchRestaurants({ cityId: city.id, page: 1 });
   };
 
   const showCityModal = () => {
@@ -100,6 +95,13 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
 
   const closeCityModal = () => {
     setIsCityModalOpen(false);
+  };
+
+  const totalPages = pageSize ? Math.ceil(totalCount / pageSize) : 1;
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages || page === currentPage) return;
+    fetchRestaurants({ page, cityId: selectedCity?.id ?? null, query: searchQuery });
   };
 
   return (
@@ -141,7 +143,7 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
 
       {error && <div className="mt-10 text-center text-red-500">{error}</div>}
 
-      {searchQuery && filteredRestaurants.length === 0 && !isLoading && (
+      {searchQuery && restaurants.length === 0 && !isLoading && (
         <div className="mt-10 text-center text-gray-500">
           <p>По вашему запросу "{searchQuery}" ничего не найдено</p>
           <p className="text-sm mt-2">Попробуйте изменить поисковый запрос</p>
@@ -158,7 +160,7 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
       )}
 
       <div className="grid grid-cols-3 gap-8 mt-10 max-sm:grid-cols-1">
-        {!isLoading && (searchQuery ? filteredRestaurants : restaurants).map((res: any) => (
+        {!isLoading && restaurants.map((res: any) => (
           <RestaurantCard
             key={res.id}
             img={res.photo}
@@ -171,6 +173,29 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
           />
         ))}
       </div>
+
+      {/* Пагинация */}
+      {totalPages > 1 && (
+        <div className="mt-10 flex items-center justify-center gap-4">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Предыдущая
+          </button>
+          <span className="text-sm text-gray-600">
+            Страница {currentPage} из {totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Следующая
+          </button>
+        </div>
+      )}
 
       {/* City Modal */}
       <CityModal
