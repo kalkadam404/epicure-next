@@ -2,6 +2,7 @@
 
 import { BonusAppPromo } from "@/components/BonusAppPromo";
 import { OfferCard } from "@/components/OfferCard";
+import { SkeletonCard } from "@/components/SkeletonCard";
 import { offerService, type Offer } from "@/services";
 import type { Metadata } from "next";
 import { useEffect, useState } from "react";
@@ -48,12 +49,23 @@ export default function OffersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-gray-600">Загружаем предложения...</p>
+      <section className="py-16 bg-white max-sm:py-4">
+        <div className="container mx-auto px-4 mb-12 text-center max-sm:mb-8">
+          <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
+            {t("offers_section.title")}
+          </h2>
+          <p className="text-gray-700 text-lg max-w-2xl mx-auto">
+            {t("offers_section.description")}
+          </p>
+          <div className="w-20 h-1 bg-black mx-auto mt-6"></div>
         </div>
-      </div>
+
+        <div className="px-20 mx-auto max-sm:px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <SkeletonCard variant="offer" count={6} />
+          </div>
+        </div>
+      </section>
     );
   }
 

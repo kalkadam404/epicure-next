@@ -3,6 +3,7 @@
 import { useTranslation } from "react-i18next";
 import { RestaurantCard } from "./RestaurantCard";
 import { CityModal } from "./CityModal";
+import { SkeletonCard } from "./SkeletonCard";
 import { useEffect, useState } from "react";
 import locationIcon from "@/assets/location.svg";
 import { restaurantService } from "@/services";
@@ -133,7 +134,9 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
       </div>
 
       {isLoading && (
-        <div className="mt-10 text-center">{t("loading") || "Загрузка..."}</div>
+        <div className="grid grid-cols-3 gap-8 mt-10 max-sm:grid-cols-1">
+          <SkeletonCard variant="restaurant" count={6} />
+        </div>
       )}
 
       {error && <div className="mt-10 text-center text-red-500">{error}</div>}
@@ -155,7 +158,7 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
       )}
 
       <div className="grid grid-cols-3 gap-8 mt-10 max-sm:grid-cols-1">
-        {(searchQuery ? filteredRestaurants : restaurants).map((res: any) => (
+        {!isLoading && (searchQuery ? filteredRestaurants : restaurants).map((res: any) => (
           <RestaurantCard
             key={res.id}
             img={res.photo}
