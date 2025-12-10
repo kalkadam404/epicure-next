@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DishCard } from "./DishCard";
+import { SkeletonCard } from "./SkeletonCard";
 import Image from "next/image";
 import arrow_left from "@/assets/arrow_left.svg";
 import arrow_right from "@/assets/arrow_right.svg";
@@ -78,9 +79,8 @@ export function DishList({ onDishClick }: DishListProps = {}) {
       </div>
 
       {isLoading && (
-        <div className="mt-10 text-center py-8">
-          <div className="inline-block w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
-          <p className="mt-2 text-gray-600">{t("loading") || "Загрузка..."}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-10">
+          <SkeletonCard variant="dish" count={8} />
         </div>
       )}
 
