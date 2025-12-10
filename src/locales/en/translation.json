@@ -29,7 +29,7 @@
   "restaurants": "Restaurants",
   "restaurantIn": "Restaurants in",
   "allRestaurants": "All restaurants",
-  "restaurantInCity": "Restaurants in {city}",
+  "restaurantInCity": "Restaurants in {{city}}",
   "select_restaurant": "Choose a restaurant",
   "noRestaurants": "No restaurants",
   "noRestaurantsInCity": "No restaurants in city",

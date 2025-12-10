@@ -135,21 +135,11 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
 
     const fetchMenu = async () => {
       try {
-        setLoading(true);
-        const data = await restaurantService.getRestaurantMenu(
-          selectedRestaurant.id
-        );
-        setDishes((data as any).results || data);
+        const fallbackData = await menuService.getMenuItems();
+        setDishes((fallbackData as any).results || fallbackData);
       } catch (err) {
         console.error("Error fetching menu:", err);
-        // Fallback to general menu items
-        try {
-          const fallbackData = await menuService.getMenuItems();
-          setDishes((fallbackData as any).results || fallbackData);
-        } catch (fallbackErr) {
-          console.error("Error fetching fallback menu:", fallbackErr);
-          setError("Не удалось загрузить меню");
-        }
+        setError("Не удалось загрузить меню");
       } finally {
         setLoading(false);
       }
@@ -817,7 +807,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
                       {getLocalized(selectedRestaurant, "name") || "—"}
                     </div>
                     <div className="text-sm text-gray-500">
-                      {selectedRestaurant?.address || "—"}
+                      {getLocalized(selectedRestaurant?.city, "name") || "—"}
                     </div>
                   </div>
                 </div>

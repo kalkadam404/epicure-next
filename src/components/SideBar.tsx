@@ -15,7 +15,7 @@ export function SideBar({ isOpen, onClose }: SidebarProps) {
     { name: "Меню", href: "/menu" },
     { name: "Бронирование", href: "/" },
     { name: "Пакеты", href: "/offers" },
-    { name: "О Нас", href: "/about" },
+    { name: "О нас", href: "/about" },
     { name: "Профиль", href: "/profile" },
   ];
   useEffect(() => {

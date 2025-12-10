@@ -45,7 +45,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="flex flex-col items-center gap-5 mt-10 max-sm:mt-2">
+    <div className="flex flex-col items-center gap-5  max-sm:mt-2">
       <div className="font-bold text-4xl">{t("about")}</div>
       <p className="text-gray-400 text-lg font-medium text-center w-[600px] max-sm:w-full">
         {t("aboutUs.title_mini")}

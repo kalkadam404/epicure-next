@@ -70,7 +70,7 @@ export default function OffersPage() {
   }
 
   return (
-    <section className="py-16 bg-white max-sm:py-4">
+    <section className=" bg-white max-sm:py-4">
       <div className="container mx-auto px-4 mb-12 text-center max-sm:mb-8">
         <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">
           {t("offers_section.title")}

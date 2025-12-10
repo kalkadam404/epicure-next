@@ -31,7 +31,11 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
     return item[`${field}_${lang}`] || item[`${field}_ru`];
   }
 
-  const fetchRestaurants = async (options?: { cityId?: number | null; page?: number; query?: string }) => {
+  const fetchRestaurants = async (options?: {
+    cityId?: number | null;
+    page?: number;
+    query?: string;
+  }) => {
     setIsLoading(true);
     setError(null);
 
@@ -55,7 +59,9 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
       }
 
       const data = await restaurantService.getRestaurants(params);
-      const restaurantData = Array.isArray(data) ? data : (data as any).results || [];
+      const restaurantData = Array.isArray(data)
+        ? data
+        : (data as any).results || [];
 
       setRestaurants(restaurantData as any);
       setCurrentPage(page);
@@ -81,7 +87,11 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
     // стартовая загрузка уже выполнится в другом эффекте.
     if (!restaurants.length && !searchQuery.trim()) return;
 
-    fetchRestaurants({ page: 1, query: searchQuery, cityId: selectedCity?.id ?? null });
+    fetchRestaurants({
+      page: 1,
+      query: searchQuery,
+      cityId: selectedCity?.id ?? null,
+    });
   }, [searchQuery]);
 
   const handleCitySelection = (city: any) => {
@@ -101,14 +111,18 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
-    fetchRestaurants({ page, cityId: selectedCity?.id ?? null, query: searchQuery });
+    fetchRestaurants({
+      page,
+      cityId: selectedCity?.id ?? null,
+      query: searchQuery,
+    });
   };
 
   return (
     <div className="flex flex-col mt-10" data-aos="fade-up">
       <div className="flex w-full items-center justify-between">
         <div className="font-bold text-3xl max-sm:text-xl">
-          {searchQuery 
+          {searchQuery
             ? `Результаты поиска для "${searchQuery}"`
             : selectedCity
             ? t("restaurantInCity", {
@@ -160,18 +174,19 @@ export function RestaurantList({ searchQuery = "" }: RestaurantListProps) {
       )}
 
       <div className="grid grid-cols-3 gap-8 mt-10 max-sm:grid-cols-1">
-        {!isLoading && restaurants.map((res: any) => (
-          <RestaurantCard
-            key={res.id}
-            img={res.photo}
-            ResName={res.name}
-            city={res.city.name}
-            menuType={getLocalized(res, "description")}
-            openingTime={res.opening_time}
-            closingTime={res.closing_time}
-            rating={res.rating}
-          />
-        ))}
+        {!isLoading &&
+          restaurants.map((res: any) => (
+            <RestaurantCard
+              key={res.id}
+              img={res.photo}
+              ResName={res.name}
+              city={res.city.name}
+              menuType={getLocalized(res, "description")}
+              openingTime={res.opening_time}
+              closingTime={res.closing_time}
+              rating={res.rating}
+            />
+          ))}
       </div>
 
       {/* Пагинация */}

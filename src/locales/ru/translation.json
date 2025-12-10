@@ -29,7 +29,7 @@
   "restaurants": "Рестораны",
   "restaurantIn": "Рестораны в",
   "allRestaurants": "Все рестораны",
-  "restaurantInCity": "Рестораны в {city}",
+  "restaurantInCity": "Рестораны в {{city}}",
   "select_restaurant": "Выберите ресторан",
   "noRestaurants": "Нет ресторанов",
   "noRestaurantsInCity": "В этом городе нет ресторанов",

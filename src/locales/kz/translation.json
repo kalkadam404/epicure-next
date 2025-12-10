@@ -30,7 +30,7 @@
   "restaurantIn": " мейрамханалар",
   "noRestaurants": "Мейрамханалар жоқ",
   "allRestaurants": "Барлық мейрамханалар",
-  "restaurantInCity": "{city}  мейрамханалар",
+  "restaurantInCity": "{{city}} мейрамханалар",
   "select_restaurant": "Мейрамхананы таңдаңыз",
   "noRestaurantsInCity": "Бұл қалада мейрамханалар жоқ",
   "loading": "Жүктелуде",

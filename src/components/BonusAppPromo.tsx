@@ -61,7 +61,9 @@ export function BonusAppPromo() {
             </svg>
             <div>
               <div className="text-xs">{t("bonusAppPromo.buttonApps")}</div>
-              <div className="font-medium">{t("bonusAppPromo.appStore")}</div>
+              <div className="font-medium max-sm:text-sm">
+                {t("bonusAppPromo.appStore")}
+              </div>
             </div>
           </a>
 
@@ -78,7 +80,9 @@ export function BonusAppPromo() {
             </svg>
             <div>
               <div className="text-xs">{t("bonusAppPromo.allowed")}</div>
-              <div className="font-medium">{t("bonusAppPromo.googlePlay")}</div>
+              <div className="font-medium max-sm:text-sm">
+                {t("bonusAppPromo.googlePlay")}
+              </div>
             </div>
           </a>
         </div>

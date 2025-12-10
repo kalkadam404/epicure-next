@@ -68,47 +68,47 @@ function ProfilePageContent() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const router = useRouter();
-  
+
   // Используем Firestore для хранения профиля
-  const { 
-    profile: firestoreProfile, 
+  const {
+    profile: firestoreProfile,
     loading: firestoreLoading,
     saving: firestoreSaving,
     updateProfile: updateFirestoreProfile,
-    uploadAvatar
+    uploadAvatar,
   } = useFirestoreProfile();
-  
+
   // Локальное состояние для формы
   const [formData, setFormData] = useState<ProfileData>(defaultProfile);
   const [avatarPreview, setAvatarPreview] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Загружаем данные из Firestore в форму
   useEffect(() => {
     if (firestoreProfile) {
       setFormData({
-        fullName: firestoreProfile.fullName || '',
-        email: firestoreProfile.email || '',
-        phone: firestoreProfile.phone || '',
-        city: firestoreProfile.city || '',
-        bio: firestoreProfile.bio || '',
-        language: firestoreProfile.preferences?.language || 'ru',
+        fullName: firestoreProfile.fullName || "",
+        email: firestoreProfile.email || "",
+        phone: firestoreProfile.phone || "",
+        city: firestoreProfile.city || "",
+        bio: firestoreProfile.bio || "",
+        language: firestoreProfile.preferences?.language || "ru",
         notifications: firestoreProfile.preferences?.notifications ?? true,
         promos: firestoreProfile.preferences?.promos ?? true,
         darkMode: firestoreProfile.preferences?.darkMode ?? false,
-        avatar: firestoreProfile.avatar || '',
+        avatar: firestoreProfile.avatar || "",
       });
-      setAvatarPreview(firestoreProfile.avatar || '');
+      setAvatarPreview(firestoreProfile.avatar || "");
     }
   }, [firestoreProfile]);
 
   const handleLogout = async () => {
     try {
       await dispatch(logoutThunk()).unwrap();
-      router.push('/');
+      router.push("/");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -141,20 +141,20 @@ function ProfilePageContent() {
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);
     } catch (error: any) {
-      alert(error.message || 'Ошибка загрузки фото');
-      setAvatarPreview(firestoreProfile?.avatar || '');
+      alert(error.message || "Ошибка загрузки фото");
+      setAvatarPreview(firestoreProfile?.avatar || "");
     }
   };
 
   const removeAvatar = async () => {
     try {
-      await updateFirestoreProfile({ avatar: '' });
+      await updateFirestoreProfile({ avatar: "" });
       setAvatarPreview("");
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } catch (error) {
-      console.error('Error removing avatar:', error);
+      console.error("Error removing avatar:", error);
     }
   };
 
@@ -178,12 +178,12 @@ function ProfilePageContent() {
           notifications: formData.notifications,
           promos: formData.promos,
           darkMode: formData.darkMode,
-        }
+        },
       });
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);
     } catch (error: any) {
-      alert(error.message || 'Ошибка сохранения');
+      alert(error.message || "Ошибка сохранения");
     }
   };
 
@@ -204,22 +204,14 @@ function ProfilePageContent() {
       <div className="mx-auto max-w-6xl px-6 pb-16">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm text-muted-foreground">Профиль</p>
-            <h1 className="text-3xl font-bold tracking-tight">Личные данные</h1>
-            <p className="text-sm text-muted-foreground">
+            <p className=" text-muted-foreground">Профиль</p>
+            <h1 className="text-2xl font-bold tracking-tight">Личные данные</h1>
+            <p className="text-muted-foreground">
               🔥 Данные синхронизируются с Firestore Database
             </p>
           </div>
           <div className="flex items-center gap-3">
             <Button
-              variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={firestoreSaving}
-            >
-              <UploadCloud className="h-4 w-4" />
-              Обновить аватар
-            </Button>
-            <Button 
               className="shadow-md"
               onClick={handleSaveProfile}
               disabled={firestoreSaving}
@@ -442,8 +434,8 @@ function ProfilePageContent() {
                 >
                   Сбросить
                 </Button>
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   className="shadow-md"
                   onClick={handleSaveProfile}
                   disabled={firestoreSaving}

@@ -14,11 +14,6 @@ import {
   setPage as setMenuPage,
 } from "@/store/slices/menuSlice";
 
-// export const metadata: Metadata = {
-//   title: "Epicure-home",
-//   description: "",
-// };
-
 export default function MenuPage() {
   const { t, i18n, ready } = useTranslation();
   const dispatch = useAppDispatch();
@@ -76,6 +71,33 @@ export default function MenuPage() {
   useEffect(() => {
     setFilteredDishList(dishList);
   }, [dishList]);
+
+  useEffect(() => {
+    if (!categories.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute("data-index"));
+            setActiveIndex(index);
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: "0px 0px -70% 0px", // блок считается активным, когда верхняя его часть в 30% экрана
+        threshold: 0,
+      }
+    );
+
+    categories.forEach((cat, idx) => {
+      const el = document.getElementById(`category-${idx}`);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [categories, filteredDishList]);
 
   // Функция поиска по блюдам через backend API (debounce реализован в SearchComponent)
   const searchDishes = (query: string) => {
@@ -154,7 +176,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="pt-20 max-sm:pt-5">
+    <div className="pt-10 max-sm:pt-5">
       {/* Search Section */}
       <div className="px-20 mb-8">
         <div className="max-w-2xl mx-auto">
@@ -217,7 +239,9 @@ export default function MenuPage() {
                   {filteredDishList.map((dish: any) => (
                     <MenuItem
                       key={dish.id}
-                      img={ImageService.getImageUrl(dish.image_url || dish.image || "")}
+                      img={ImageService.getImageUrl(
+                        dish.image_url || dish.image || ""
+                      )}
                       title={getLocalized(dish, "name")}
                       category={dish.menu_type_details?.name || ""}
                       price={dish.price}
@@ -241,16 +265,19 @@ export default function MenuPage() {
               <div
                 key={cat.id}
                 id={`category-${idx}`}
+                data-index={idx}
                 className="space-y-4 scroll-mt-[110px]"
               >
                 <h2 className="text-xl font-bold text-gray-800 mb-5">
                   {getLocalized(cat, "name")}
                 </h2>
-                <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-1">
+                <div className="grid grid-cols-3 gap-x-3 gap-y-5 max-sm:grid-cols-1">
                   {(groupedDishes[cat.id] || []).map((dish: any) => (
                     <MenuItem
                       key={dish.id}
-                      img={ImageService.getImageUrl(dish.image_url || dish.image || "")}
+                      img={ImageService.getImageUrl(
+                        dish.image_url || dish.image || ""
+                      )}
                       title={getLocalized(dish, "name")}
                       category={dish.menu_type_details?.name || ""}
                       price={dish.price}

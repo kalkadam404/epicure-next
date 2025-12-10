@@ -1,5 +1,5 @@
-import { apiService } from './apiService';
-import type { AxiosResponse } from 'axios';
+import { apiService } from "./apiService";
+import type { AxiosResponse } from "axios";
 
 export interface Restaurant {
   id: number;
@@ -34,22 +34,25 @@ export interface RestaurantListParams {
 }
 
 class RestaurantService {
-  private readonly baseUrl = '/api/v1/restaurants';
+  private readonly baseUrl = "/restaurants";
 
   async getRestaurants(
     cityIdOrParams?: number | RestaurantListParams
   ): Promise<RestaurantListResponse> {
     let params: RestaurantListParams = {};
 
-    if (typeof cityIdOrParams === 'number') {
+    if (typeof cityIdOrParams === "number") {
       params.city = cityIdOrParams;
     } else if (cityIdOrParams) {
       params = { ...cityIdOrParams };
     }
 
-    const response = await apiService.get<RestaurantListResponse>(this.baseUrl, {
-      params,
-    });
+    const response = await apiService.get<RestaurantListResponse>(
+      this.baseUrl,
+      {
+        params,
+      }
+    );
     return response.data;
   }
 
@@ -59,7 +62,9 @@ class RestaurantService {
   }
 
   async getRestaurantMenu(restaurantId: number): Promise<any> {
-    const response = await apiService.get(`${this.baseUrl}/${restaurantId}/menu/`);
+    const response = await apiService.get(
+      `${this.baseUrl}/${restaurantId}/menu/`
+    );
     return response.data;
   }
 }
