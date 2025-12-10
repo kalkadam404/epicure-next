@@ -41,6 +41,12 @@ export interface DishListResponse {
   results: Dish[];
 }
 
+export interface MenuItemsParams {
+  search?: string;
+  page?: number;
+  page_size?: number;
+}
+
 class MenuService {
   private readonly menuTypesUrl = '/products/menu-types';
   private readonly menuItemsUrl = '/products/menu-items';
@@ -50,8 +56,10 @@ class MenuService {
     return response.data.results || [];
   }
 
-  async getMenuItems(): Promise<DishListResponse> {
-    const response = await apiService.get<DishListResponse>(this.menuItemsUrl);
+  async getMenuItems(params?: MenuItemsParams): Promise<DishListResponse> {
+    const response = await apiService.get<DishListResponse>(this.menuItemsUrl, {
+      params,
+    });
     return response.data;
   }
 
@@ -67,11 +75,11 @@ class MenuService {
     return response.data;
   }
 
-  async searchDishes(query: string): Promise<Dish[]> {
+  async searchDishes(query: string, page = 1): Promise<DishListResponse> {
     const response = await apiService.get<DishListResponse>(this.menuItemsUrl, {
-      params: { search: query }
+      params: { search: query, page },
     });
-    return response.data.results || [];
+    return response.data;
   }
 }
 

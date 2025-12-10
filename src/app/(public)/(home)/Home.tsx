@@ -54,7 +54,10 @@ export default function Home() {
           <SearchComponent
             showRestaurants={true}
             showDishes={false}
-            className="bg-white rounded-2xl shadow-lg border border-gray-100"
+            className="w-full"
+            autoSearch={false}
+            showSearchButton={true}
+            initialQuery={searchQuery}
             onSearchResults={handleSearch}
             onClear={handleClearSearch}
           />

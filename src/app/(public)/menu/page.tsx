@@ -7,6 +7,12 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo } from "react";
 import { menuService, ImageService } from "@/services";
 import { MenuItem } from "@/components/MenuItem";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  fetchMenuItems,
+  setSearchQuery as setMenuSearchQuery,
+  setPage as setMenuPage,
+} from "@/store/slices/menuSlice";
 
 // export const metadata: Metadata = {
 //   title: "Epicure-home",
@@ -15,13 +21,20 @@ import { MenuItem } from "@/components/MenuItem";
 
 export default function MenuPage() {
   const { t, i18n, ready } = useTranslation();
-  const [dishList, setDishList] = useState<any[]>([]);
+  const dispatch = useAppDispatch();
+  const {
+    items: dishList,
+    loading,
+    error,
+    searchQuery,
+    page: currentPage,
+    pageSize,
+    totalCount,
+  } = useAppSelector((state) => state.menu);
+
   const [filteredDishList, setFilteredDishList] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const [isDishInfoModalOpen, setIsDishInfoModalOpen] = useState(false);
   const [selectedDish, setSelectedDish] = useState<any>(null);
@@ -48,59 +61,33 @@ export default function MenuPage() {
       console.log("categories", data);
     } catch (err) {
       console.log("err categories", err);
-      setError("Ошибка загрузки категорий");
-    }
-  };
-
-  const fetchDishes = async () => {
-    try {
-      const data = await menuService.getMenuItems();
-      console.log("dishes", data);
-      const dishes = (data as any).results || data;
-      setDishList(dishes);
-      setFilteredDishList(dishes);
-    } catch (err) {
-      console.log("err dishes", err);
-      setError("Ошибка загрузки блюд");
+      // Ошибка категорий не должна ломать весь экран
     }
   };
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
-      setError(null);
-      await Promise.all([fetchCategories(), fetchDishes()]);
-      setLoading(false);
+      await Promise.all([fetchCategories(), dispatch(fetchMenuItems())]);
     };
     loadData();
-  }, []);
+  }, [dispatch]);
 
-  // Функция поиска по блюдам
+  // Синхронизируем локальный список с данными из Redux
+  useEffect(() => {
+    setFilteredDishList(dishList);
+  }, [dishList]);
+
+  // Функция поиска по блюдам через backend API (debounce реализован в SearchComponent)
   const searchDishes = (query: string) => {
-    setSearchQuery(query);
-    if (!query.trim()) {
-      setFilteredDishList(dishList);
-      return;
-    }
-
-    const filtered = dishList.filter((dish) => {
-      const dishName = getLocalized(dish, "name").toLowerCase();
-      const restaurantName = dish.restaurant_details?.name?.toLowerCase() || "";
-      const categoryName = dish.menu_type_details?.name?.toLowerCase() || "";
-
-      return (
-        dishName.includes(query.toLowerCase()) ||
-        restaurantName.includes(query.toLowerCase()) ||
-        categoryName.includes(query.toLowerCase())
-      );
-    });
-
-    setFilteredDishList(filtered);
+    dispatch(setMenuSearchQuery(query));
+    dispatch(setMenuPage(1));
+    dispatch(fetchMenuItems());
   };
 
   const clearSearch = () => {
-    setSearchQuery("");
-    setFilteredDishList(dishList);
+    dispatch(setMenuSearchQuery(""));
+    dispatch(setMenuPage(1));
+    dispatch(fetchMenuItems());
   };
 
   const groupedDishes = useMemo(() => {
@@ -116,6 +103,14 @@ export default function MenuPage() {
     }
     return grouped;
   }, [filteredDishList]);
+
+  const totalPages = pageSize ? Math.ceil(totalCount / pageSize) : 1;
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages || page === currentPage) return;
+    dispatch(setMenuPage(page));
+    dispatch(fetchMenuItems());
+  };
 
   const scrollToSection = (index: number) => {
     setActiveIndex(index);
@@ -166,13 +161,27 @@ export default function MenuPage() {
           <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
             Поиск блюд
           </h2>
-          <SearchComponent
-            showRestaurants={false}
-            showDishes={true}
-            className="bg-white rounded-2xl shadow-lg border border-gray-100"
-            onSearchResults={searchDishes}
-            onClear={clearSearch}
-          />
+          <div className="flex items-center gap-4 max-sm:flex-col">
+            <SearchComponent
+              showRestaurants={false}
+              showDishes={true}
+              className="flex-1"
+              initialQuery={searchQuery}
+              autoSearch={false}
+              showSearchButton={true}
+              onSearchResults={searchDishes}
+              onClear={clearSearch}
+            />
+
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="text-sm text-gray-500 hover:text-gray-700 underline whitespace-nowrap max-sm:self-end"
+              >
+                Очистить поиск
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -202,12 +211,6 @@ export default function MenuPage() {
                 <h2 className="text-xl font-bold text-gray-800">
                   Результаты поиска для "{searchQuery}"
                 </h2>
-                <button
-                  onClick={clearSearch}
-                  className="text-sm text-gray-500 hover:text-gray-700 underline"
-                >
-                  Очистить поиск
-                </button>
               </div>
               {filteredDishList.length > 0 ? (
                 <div className="grid grid-cols-3 gap-3">
@@ -259,6 +262,31 @@ export default function MenuPage() {
             ))}
         </div>
       </div>
+
+      {/* Пагинация */}
+      {totalPages > 1 && (
+        <div className="px-20 mt-8 max-sm:px-4 flex items-center justify-center">
+          <div className="flex items-center justify-center gap-4">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Предыдущая
+            </button>
+            <span className="text-sm text-gray-600">
+              Страница {currentPage} из {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Следующая
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="px-20 my-10 max-sm:px-4">
         <BonusAppPromo />
