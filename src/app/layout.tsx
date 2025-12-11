@@ -5,6 +5,7 @@ import "./globals.css";
 import "@/i18n";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import StoreProvider from "@/store/StoreProvider";
 
 const fontManrope = Manrope({
@@ -29,8 +30,11 @@ export default function RootLayout({
           name="description"
           content="Book tables at the best restaurants in Kazakhstan"
         />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={fontManrope.className}>
+        <ServiceWorkerRegistration />
         <StoreProvider>
           <Header />
           <div className="pt-32 w-full max-sm:pt-14">{children}</div>
