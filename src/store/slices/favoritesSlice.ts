@@ -1,8 +1,20 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  type PayloadAction,
+  createAsyncThunk,
+} from "@reduxjs/toolkit";
 import type { Dish } from "@/services";
+import { getUserFavorites, saveUserFavorites } from "@/services/favoritesService";
 
 interface FavoritesState {
   items: Dish[];
+  loading: boolean;
+  /**
+   * Флаг, который показывает, что при входе
+   * локальные избранные были объединены с аккаунтом.
+   * Используется для показа баннера на странице избранного.
+   */
+  mergedFromLocal: boolean;
 }
 
 const FAVORITES_STORAGE_KEY = "epicure_favorites";
@@ -35,9 +47,63 @@ const saveFavorites = (items: Dish[]) => {
   }
 };
 
+// Важно: не читаем localStorage в initialState, чтобы избежать расхождений
+// между серверным и клиентским рендером. Гидратация из localStorage
+// происходит через экшен hydrateFavorites в client-only эффекте.
 const initialState: FavoritesState = {
-  items: loadFavorites(),
+  items: [],
+  loading: false,
+  mergedFromLocal: false,
 };
+
+// Синхронизация избранного при логине пользователя:
+// - загружаем избранное из Firestore
+// - мержим с локальными избранными
+// - сохраняем объединённый список и в Firestore, и в localStorage
+export const syncFavoritesOnLogin = createAsyncThunk(
+  "favorites/syncOnLogin",
+  async (userId: string, { getState, rejectWithValue }) => {
+    try {
+      const state: any = getState();
+      const localItems: Dish[] = state?.favorites?.items ?? [];
+
+      const serverItems = await getUserFavorites(userId);
+
+      // Мерж по id блюда (уникальные элементы)
+      const map = new Map<number, Dish>();
+
+      for (const item of serverItems || []) {
+        if (item && typeof item.id === "number") {
+          map.set(item.id, item);
+        }
+      }
+
+      let mergedFromLocal = false;
+
+      for (const item of localItems || []) {
+        if (!item || typeof item.id !== "number") continue;
+        if (!map.has(item.id)) {
+          map.set(item.id, item);
+          mergedFromLocal = true;
+        }
+      }
+
+      const merged = Array.from(map.values());
+
+      // Сохраняем объединённый список и в Firestore, и локально
+      await saveUserFavorites(userId, merged);
+      saveFavorites(merged);
+
+      return {
+        favorites: merged,
+        mergedFromLocal,
+      };
+    } catch (error) {
+      console.error("Error syncing favorites on login:", error);
+      return rejectWithValue("Failed to sync favorites");
+    }
+  }
+);
 
 const favoritesSlice = createSlice({
   name: "favorites",
@@ -72,6 +138,26 @@ const favoritesSlice = createSlice({
     hydrateFavorites(state) {
       state.items = loadFavorites();
     },
+    // Сбрасываем флаг показа баннера о мердже
+    resetMergedFromLocal(state) {
+      state.mergedFromLocal = false;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(syncFavoritesOnLogin.pending, (state) => {
+        state.loading = true;
+        // при новой синхронизации убираем старый баннер
+        state.mergedFromLocal = false;
+      })
+      .addCase(syncFavoritesOnLogin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload.favorites;
+        state.mergedFromLocal = action.payload.mergedFromLocal;
+      })
+      .addCase(syncFavoritesOnLogin.rejected, (state) => {
+        state.loading = false;
+      });
   },
 });
 
@@ -81,6 +167,7 @@ export const {
   toggleFavorite,
   clearFavorites,
   hydrateFavorites,
+  resetMergedFromLocal,
 } = favoritesSlice.actions;
 
 export default favoritesSlice.reducer;

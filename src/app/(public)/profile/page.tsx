@@ -69,13 +69,13 @@ function ProfilePageContent() {
   const user = useAppSelector((state) => state.auth.user);
   const router = useRouter();
 
-  // Используем Firestore для хранения профиля
   const {
     profile: firestoreProfile,
     loading: firestoreLoading,
     saving: firestoreSaving,
     updateProfile: updateFirestoreProfile,
     uploadAvatar,
+    error: firestoreError,
   } = useFirestoreProfile();
 
   // Локальное состояние для формы
@@ -84,7 +84,6 @@ function ProfilePageContent() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Загружаем данные из Firestore в форму
   useEffect(() => {
     if (firestoreProfile) {
       setFormData({
@@ -122,7 +121,6 @@ function ProfilePageContent() {
       .slice(0, 2);
   }, [formData.fullName]);
 
-  // Загрузка аватара в Firestore
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -136,7 +134,6 @@ function ProfilePageContent() {
       };
       reader.readAsDataURL(file);
 
-      // Загружаем в Firestore
       const base64 = await uploadAvatar(file);
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);
@@ -165,7 +162,6 @@ function ProfilePageContent() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Сохранение профиля в Firestore
   const handleSaveProfile = async () => {
     try {
       await updateFirestoreProfile({
@@ -193,7 +189,7 @@ function ProfilePageContent() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка профиля из Firestore...</p>
+          <p className="text-gray-600">Загрузка данных профиля...</p>
         </div>
       </div>
     );
@@ -206,9 +202,6 @@ function ProfilePageContent() {
           <div>
             <p className=" text-muted-foreground">Профиль</p>
             <h1 className="text-2xl font-bold tracking-tight">Личные данные</h1>
-            <p className="text-muted-foreground">
-              🔥 Данные синхронизируются с Firestore Database
-            </p>
           </div>
           <div className="flex items-center gap-3">
             <Button
@@ -216,16 +209,7 @@ function ProfilePageContent() {
               onClick={handleSaveProfile}
               disabled={firestoreSaving}
             >
-              {firestoreSaving ? (
-                <>⏳ Сохранение...</>
-              ) : uploadSuccess ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4" />
-                  Сохранено в Firestore
-                </>
-              ) : (
-                <>💾 Сохранить в Firestore</>
-              )}
+              {firestoreSaving ? "⏳ Сохранение..." : "Сохранить"}
             </Button>
             <Button
               variant="outline"
@@ -237,6 +221,12 @@ function ProfilePageContent() {
             </Button>
           </div>
         </div>
+
+        {firestoreError && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            {firestoreError}
+          </div>
+        )}
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <Card className="lg:col-span-1">
@@ -445,7 +435,7 @@ function ProfilePageContent() {
                   ) : uploadSuccess ? (
                     <>
                       <CheckCircle2 className="h-4 w-4" />
-                      Сохранено в Firestore
+                      Данные сохранены
                     </>
                   ) : (
                     <>💾 Сохранить</>

@@ -28,31 +28,43 @@ export const useFirestoreProfile = () => {
 
       try {
         setLoading(true);
-        console.log('🔥 Загрузка профиля из Firestore...');
+        console.log('🔥 Загрузка профиля из хранилища...');
         const userProfile = await getUserProfile(user.uid);
-        
+
+        // Базовые данные из Auth — используем как дефолт,
+        // чтобы даже при пустом документе были email/имя.
+        const baseProfile: UserProfile = {
+          uid: user.uid,
+          email: user.email || '',
+          fullName: user.displayName || 'No Name',
+          phone: user.phoneNumber || '',
+          city: '',
+          bio: '',
+          avatar: '',
+          preferences: {
+            language: 'ru',
+            notifications: true,
+            promos: true,
+            darkMode: false,
+          },
+        };
+
         if (userProfile) {
-          console.log('✅ Профиль загружен из Firestore');
-          setProfile(userProfile);
-        } else {
-          // Создаем базовый профиль
-          console.log('📝 Создание нового профиля в Firestore');
-          const defaultProfile: UserProfile = {
-            uid: user.uid,
-            email: user.email || '',
-            fullName: user.displayName || 'No Name',
-            phone: user.phoneNumber || '',
-            city: '',
-            bio: '',
-            avatar: '',
+          console.log('✅ Профиль загружен, объединяем с данными аккаунта');
+          // Мержим, чтобы не потерять уже сохранённые поля,
+          // но при отсутствии значений используем данные из Auth.
+          const merged: UserProfile = {
+            ...baseProfile,
+            ...userProfile,
             preferences: {
-              language: 'ru',
-              notifications: true,
-              promos: true,
-              darkMode: false,
+              ...baseProfile.preferences,
+              ...(userProfile.preferences || {}),
             },
           };
-          setProfile(defaultProfile);
+          setProfile(merged);
+        } else {
+          console.log('📝 Профиль ещё не создан, используем данные аккаунта');
+          setProfile(baseProfile);
         }
       } catch (err: any) {
         console.error('❌ Ошибка загрузки профиля:', err);

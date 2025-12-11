@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { DishCard } from "@/components/DishCard";
 import { ImageService } from "@/services";
 import { Heart, ChefHat } from "lucide-react";
@@ -17,8 +17,12 @@ import { useRouter } from "next/navigation";
 
 export default function FavoritesPage() {
   const { t, i18n } = useTranslation();
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const favorites = useAppSelector((state) => state.favorites.items);
+  const mergedFromLocal = useAppSelector(
+    (state) => state.favorites.mergedFromLocal
+  );
 
   function getLocalized(item: any, field: string) {
     const lang = (i18n?.language || "ru").toLowerCase();
@@ -35,6 +39,26 @@ export default function FavoritesPage() {
               {t("favorites.title") || "Избранное"}
             </h1>
           </div>
+
+          {mergedFromLocal && (
+            <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 flex items-center justify-between gap-3">
+              <span>
+                {t("favorites.merged_message") ||
+                  "Ваши локальные избранные были объединены с вашим аккаунтом."}
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  dispatch({
+                    type: "favorites/resetMergedFromLocal",
+                  })
+                }
+                className="text-xs font-medium text-blue-700 hover:text-blue-900"
+              >
+                {t("buttons.done") || "Готово"}
+              </button>
+            </div>
+          )}
 
           <Card className="border-2 border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 px-6">
@@ -85,6 +109,26 @@ export default function FavoritesPage() {
             </div>
           </div>
         </div>
+
+        {mergedFromLocal && (
+          <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 flex items-center justify-between gap-3">
+            <span>
+              {t("favorites.merged_message") ||
+                "Ваши локальные избранные были объединены с вашим аккаунтом."}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                dispatch({
+                  type: "favorites/resetMergedFromLocal",
+                })
+              }
+              className="text-xs font-medium text-blue-700 hover:text-blue-900"
+            >
+              {t("buttons.done") || "Готово"}
+            </button>
+          </div>
+        )}
 
         {/* Favorites Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
