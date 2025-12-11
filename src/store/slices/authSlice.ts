@@ -1,10 +1,14 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import { type User } from 'firebase/auth';
-import { signup, login, logout } from '@/services/authService';
-import type { SignupData, LoginData } from '@/services/authService';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { initializeUserProfile } from '@/services/firestoreService';
+import {
+  createSlice,
+  createAsyncThunk,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
+import { type User } from "firebase/auth";
+import { signup, login, logout } from "@/services/authService";
+import type { SignupData, LoginData } from "@/services/authService";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { initializeUserProfile } from "@/services/firestoreService";
 
 interface AuthState {
   user: User | null;
@@ -22,11 +26,11 @@ const initialState: AuthState = {
 
 // Async Thunks
 export const signupThunk = createAsyncThunk(
-  'auth/signup',
+  "auth/signup",
   async (data: SignupData, { rejectWithValue }) => {
     try {
       const user = await signup(data);
-      
+
       // Создаем профиль в Firestore сразу после регистрации
       try {
         await initializeUserProfile(
@@ -35,66 +39,70 @@ export const signupThunk = createAsyncThunk(
           data.name || user.displayName || undefined,
           data.city || undefined // Передаем город
         );
-        console.log('✅ Профиль создан в Firestore');
+        console.log("✅ Профиль создан в Firestore");
       } catch (firestoreError) {
-        console.error('⚠️ Ошибка создания профиля в Firestore:', firestoreError);
+        console.error(
+          "⚠️ Ошибка создания профиля в Firestore:",
+          firestoreError
+        );
         // Не прерываем регистрацию, если Firestore не сработал
       }
-      
+
       return user.toJSON() as User;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Ошибка при регистрации');
+      return rejectWithValue(error.message || "Ошибка при регистрации");
     }
   }
 );
 
 export const loginThunk = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async (data: LoginData, { rejectWithValue }) => {
     try {
       const user = await login(data);
       return user.toJSON() as User;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Ошибка при входе');
+      return rejectWithValue(error.message || "Ошибка при входе");
     }
   }
 );
 
 export const logoutThunk = createAsyncThunk(
-  'auth/logout',
+  "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
       await logout();
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Ошибка при выходе');
+      return rejectWithValue(error.message || "Ошибка при выходе");
     }
   }
 );
 
 // Thunk для инициализации состояния аутентификации
 export const initializeAuth = createAsyncThunk(
-  'auth/initialize',
+  "auth/initialize",
   async (_, { dispatch }) => {
     // Сначала проверяем текущего пользователя синхронно
     const currentUser = auth.currentUser;
-    
+
     if (currentUser) {
-      // Если пользователь уже есть, возвращаем его сразу
-      return currentUser;
+      // Если пользователь уже есть, возвращаем его сериализованную версию
+      return currentUser.toJSON() as User;
     }
-    
+
     // Если нет, ждем onAuthStateChanged
     return new Promise<User | null>((resolve) => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         unsubscribe();
-        resolve(user);
+        // Сериализуем пользователя перед возвратом
+        resolve(user ? (user.toJSON() as User) : null);
       });
     });
   }
 );
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User | null>) => {
@@ -173,5 +181,3 @@ const authSlice = createSlice({
 
 export const { setUser, clearError } = authSlice.actions;
 export default authSlice.reducer;
-
-

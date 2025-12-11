@@ -99,11 +99,15 @@ export function DishList({ onDishClick }: DishListProps = {}) {
           {dishList.map((dish) => (
             <div key={dish.id} onClick={() => handleDishClick(dish)}>
               <DishCard
-                img={ImageService.getImageUrl(dish.image_url || dish.image || "")}
+                img={ImageService.getImageUrl(
+                  dish.image_url || dish.image || ""
+                )}
                 title={getLocalized(dish, "name")}
                 restaurant={dish.restaurant_details?.name || ""}
                 category={dish.menu_type_details?.name || ""}
                 price={dish.price}
+                dishId={dish.id}
+                dish={dish}
               />
             </div>
           ))}

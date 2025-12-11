@@ -65,7 +65,6 @@
   "noFavorites": "You have no favorite dishes yet",
   "saving": "Saving...",
   "save": "Save",
-  "favorites": "Favorites",
   "currentPassword": "Current Password",
   "newPassword": "New Password",
   "confirmNewPassword": "Confirm New Password",
@@ -207,5 +206,14 @@
     "try_different": "Try changing your search query",
     "searching": "Searching...",
     "clear": "Clear search"
+  },
+  "favorites": {
+    "title": "Favorites",
+    "empty": "Your favorites list is empty",
+    "description": "Start adding dishes to your favorites by tapping the heart icon on the dish cards",
+    "browse": "Go to menu",
+    "item": "dish",
+    "items_2_4": "dishes",
+    "items": "dishes"
   }
 }

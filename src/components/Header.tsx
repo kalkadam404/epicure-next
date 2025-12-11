@@ -22,7 +22,7 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.auth.user);
+  const { user, loading } = useAppSelector((state) => state.auth);
   const locales = [
     { code: "en", name: "English" },
     { code: "ru", name: "Русский" },
@@ -34,7 +34,7 @@ export function Header() {
     i18n.changeLanguage(lang);
   };
   const menuRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -48,9 +48,9 @@ export function Header() {
   const handleLogout = async () => {
     try {
       await dispatch(logoutThunk()).unwrap();
-      router.push('/');
+      router.push("/");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -150,6 +150,21 @@ export function Header() {
                 />
               </Link>
               <Link
+                href={"/favorites"}
+                className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
+                  isActive("/favorites")
+                    ? "text-black"
+                    : "text-gray-800 hover:text-black/70"
+                }`}
+              >
+                {t("favorites.title")}
+                <span
+                  className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
+                    isActive("/about") ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                />
+              </Link>
+              <Link
                 href={"/about"}
                 className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
                   isActive("/about")
@@ -164,21 +179,24 @@ export function Header() {
                   }`}
                 />
               </Link>
-              <Link
-                href={"/profile"}
-                className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
-                  isActive("/profile")
-                    ? "text-black"
-                    : "text-gray-800 hover:text-black/70"
-                }`}
-              >
-                {t("myProfile")}
-                <span
-                  className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
-                    isActive("/profile") ? "w-full" : "w-0 group-hover:w-full"
+
+              {/* {user && (
+                <Link
+                  href={"/profile"}
+                  className={`relative group font-medium tracking-wide text-lg transition-all duration-300 ease-in-out ${
+                    isActive("/profile")
+                      ? "text-black"
+                      : "text-gray-800 hover:text-black/70"
                   }`}
-                />
-              </Link>
+                >
+                  {t("myProfile")}
+                  <span
+                    className={`absolute left-1/2 -bottom-[2px] h-[2px] bg-black transition-all duration-300 ease-out transform -translate-x-1/2 ${
+                      isActive("/profile") ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
+                  />
+                </Link>
+              )} */}
             </nav>
 
             <div
@@ -219,11 +237,15 @@ export function Header() {
                 </div>
               </div>
 
-              {user ? (
+              {loading ? (
+                <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin max-sm:hidden" />
+              ) : user ? (
                 <>
-                  <span className="text-gray-800 font-medium max-sm:hidden">
-                    {user.displayName || user.email}
-                  </span>
+                  <Link href={"/profile"}>
+                    <span className="text-gray-800 font-medium max-sm:hidden">
+                      {user.displayName || user.email}
+                    </span>
+                  </Link>
                   <button
                     className="text-red-600 hover:text-red-700 text-base font-medium max-sm:hidden"
                     onClick={handleLogout}

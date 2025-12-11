@@ -46,28 +46,31 @@ export function SearchComponent({
     }
   }, [initialQuery]);
 
-  const handleSearch = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setShowResults(false);
-      if (onClear) onClear();
-      return;
-    }
+  const handleSearch = useCallback(
+    async (query: string) => {
+      if (!query.trim()) {
+        setSearchResults([]);
+        setShowResults(false);
+        if (onClear) onClear();
+        return;
+      }
 
-    setIsSearching(true);
-    setShowResults(true);
+      setIsSearching(true);
+      setShowResults(true);
 
-    try {
-      const results = await performSearch(query);
-      setSearchResults(results);
-      if (onSearchResults) onSearchResults(query);
-    } catch (error) {
-      console.error("Search error:", error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  }, [onSearchResults, onClear]);
+      try {
+        const results = await performSearch(query);
+        setSearchResults(results);
+        if (onSearchResults) onSearchResults(query);
+      } catch (error) {
+        console.error("Search error:", error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    },
+    [onSearchResults, onClear]
+  );
 
   const performSearch = async (query: string) => {
     return [];
@@ -105,10 +108,13 @@ export function SearchComponent({
     }
   }, [debouncedQuery, onSearchResults, handleSearch, autoSearch]);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-  }, []);
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchQuery(value);
+    },
+    []
+  );
 
   const handleClear = useCallback(() => {
     setSearchQuery("");
@@ -215,7 +221,7 @@ export function SearchComponent({
           <button
             type="button"
             onClick={triggerSearch}
-            className="px-4 py-2 rounded-2xl border border-gray-300 bg-white text-gray-800 text-sm font-medium hover:bg-gray-50 transition-colors max-sm:px-3"
+            className="px-5 py-4 rounded-2xl border border-gray-300 bg-white text-gray-800 text-base font-medium hover:bg-gray-50 transition-colors max-sm:px-3"
           >
             {searchButtonText}
           </button>
