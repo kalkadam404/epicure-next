@@ -214,6 +214,7 @@
     "browse": "Go to menu",
     "item": "dish",
     "items_2_4": "dishes",
-    "items": "dishes"
+    "items": "dishes",
+    "merged_message": "Your local favorites were merged with your account."
   }
 }

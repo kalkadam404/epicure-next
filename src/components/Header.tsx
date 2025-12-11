@@ -10,6 +10,11 @@ import { Register } from "./Register";
 import BookingModal from "./BookModal";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logoutThunk } from "@/store/slices/authSlice";
+import {
+  resetMergedFromLocal,
+  syncFavoritesOnLogin,
+} from "@/store/slices/favoritesSlice";
+import { saveUserFavorites } from "@/services/favoritesService";
 
 export function Header() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -23,6 +28,10 @@ export function Header() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user, loading } = useAppSelector((state) => state.auth);
+  const favorites = useAppSelector((state) => state.favorites.items);
+  const mergedFromLocal = useAppSelector(
+    (state) => state.favorites.mergedFromLocal
+  );
   const locales = [
     { code: "en", name: "English" },
     { code: "ru", name: "Русский" },
@@ -34,6 +43,8 @@ export function Header() {
     i18n.changeLanguage(lang);
   };
   const menuRef = useRef<HTMLDivElement>(null);
+  const lastSyncedUserIdRef = useRef<string | null>(null);
+  const mergeNotificationShownRef = useRef<boolean>(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -44,6 +55,74 @@ export function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // При входе пользователя мержим локальные избранные с теми, что в Firestore
+  useEffect(() => {
+    if (!user?.uid) {
+      lastSyncedUserIdRef.current = null;
+      return;
+    }
+
+    if (lastSyncedUserIdRef.current === user.uid) {
+      return;
+    }
+
+    lastSyncedUserIdRef.current = user.uid;
+    dispatch(syncFavoritesOnLogin(user.uid));
+  }, [user, dispatch]);
+
+  // При изменении избранного и наличии авторизованного пользователя
+  // сохраняем актуальный список в Firestore
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const run = async () => {
+      try {
+        await saveUserFavorites(user.uid, favorites);
+      } catch (e) {
+        // Молча игнорируем ошибку, локальное состояние и так актуально
+        console.error("Error auto-saving favorites to Firestore:", e);
+      }
+    };
+
+    void run();
+  }, [favorites, user?.uid]);
+
+  // Показываем нативное уведомление браузера один раз,
+  // когда пользователь залогинен (и уже дал разрешение на уведомления).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (!user?.uid) {
+      mergeNotificationShownRef.current = false;
+      return;
+    }
+
+    if (mergeNotificationShownRef.current) return;
+
+    if (!("Notification" in window)) return;
+
+    const showNotification = () => {
+      try {
+        new Notification("Epicure", {
+          body: "Your local favorites were merged with your account.",
+        });
+        mergeNotificationShownRef.current = true;
+      } catch {
+        // Игнорируем ошибки, если браузер запретил создание уведомления
+      }
+    };
+
+    if (Notification.permission === "granted") {
+      showNotification();
+    } else if (Notification.permission === "default") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          showNotification();
+        }
+      });
+    }
+  }, [user?.uid, favorites.length]);
 
   const handleLogout = async () => {
     try {
@@ -79,6 +158,24 @@ export function Header() {
         onSwitchToLogin={switchToLogin}
       />
       <SideBar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {/* Глобальный toast-баннер о мердже избранного */}
+      {mergedFromLocal && (
+        <div className="fixed bottom-4 right-4 z-40 max-w-sm rounded-xl bg-gray-900 text-white shadow-lg px-4 py-3 flex items-start gap-3 animate-slide-up">
+          <div className="mt-0.5 text-sm leading-snug flex-1">
+            {t("favorites.merged_message") ||
+              "Your local favorites were merged with your account."}
+          </div>
+          <button
+            type="button"
+            onClick={() => dispatch(resetMergedFromLocal())}
+            className="ml-2 text-sm text-gray-300 hover:text-white"
+            aria-label="Close notification"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <header className="fixed top-0 z-30 w-full shadow-sm bg-white/95 backdrop-blur-md">
         <div className="container mx-auto px-6 py-3 max-sm:px-4">
           <div className="flex items-center justify-between max-sm:flex-row-reverse">

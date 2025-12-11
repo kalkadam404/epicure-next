@@ -92,13 +92,12 @@ export default function ProfileWithFirestore() {
       .slice(0, 2);
   };
 
-  // Показываем загрузку
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Загрузка профиля из Firestore...</p>
+          <p className="text-gray-600">Загрузка данных профиля...</p>
         </div>
       </div>
     );
@@ -112,7 +111,7 @@ export default function ProfileWithFirestore() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Профиль</h1>
           <p className="text-gray-600 mt-2">
-            Данные синхронизируются с Firestore Database
+            Данные вашего профиля синхронизируются между устройствами
           </p>
         </div>
 
@@ -120,7 +119,7 @@ export default function ProfileWithFirestore() {
         {uploadSuccess && (
           <div className="mb-4 p-4 bg-green-100 text-green-800 rounded-lg flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5" />
-            <span>Данные успешно сохранены в Firestore!</span>
+            <span>Данные профиля успешно сохранены!</span>
           </div>
         )}
 
@@ -164,7 +163,7 @@ export default function ProfileWithFirestore() {
                 {/* Информация о загрузке */}
                 <div className="text-center">
                   <p className="text-sm text-gray-600">
-                    Загружается в Firebase Storage
+                    Фотография загружается в облачное хранилище
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     Максимум 5 МБ, форматы: JPG, PNG, WebP
@@ -220,7 +219,7 @@ export default function ProfileWithFirestore() {
               
               {/* Email (только для чтения) */}
               <div className="space-y-2">
-                <Label>Email (из Firebase Auth)</Label>
+                <Label>Email</Label>
                 <Input
                   value={profile?.email || ''}
                   disabled
@@ -305,7 +304,7 @@ export default function ProfileWithFirestore() {
             </CardContent>
           </Card>
 
-          {/* Информация о Firestore */}
+          {/* Информация о хранении данных */}
           <Card className="md:col-span-2 bg-blue-50 border-blue-200">
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
@@ -316,12 +315,12 @@ export default function ProfileWithFirestore() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-blue-900 mb-2">
-                    🔥 Данные хранятся в Firestore Database
+                    🔥 Данные вашего профиля надежно хранятся и синхронизируются
                   </h3>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Коллекция: <code className="bg-blue-100 px-1 rounded">users/{'{userId}'}</code></li>
-                    <li>• Изображения: <code className="bg-blue-100 px-1 rounded">Firebase Storage</code></li>
-                    <li>• Синхронизация на всех устройствах</li>
+                    <li>• Данные аккаунта и настроек профиля</li>
+                    <li>• Фотографии профиля в защищённом хранилище</li>
+                    <li>• Синхронизация профиля на всех ваших устройствах</li>
                     <li>• Автоматическое резервное копирование</li>
                   </ul>
                 </div>
@@ -331,11 +330,11 @@ export default function ProfileWithFirestore() {
 
         </div>
 
-        {/* Отладочная информация (можно убрать в продакшене) */}
+          {/* Отладочная информация (можно убрать в продакшене) */}
         {process.env.NODE_ENV === 'development' && profile && (
           <Card className="mt-6 bg-gray-50">
             <CardHeader>
-              <CardTitle className="text-sm">Debug: Данные из Firestore</CardTitle>
+              <CardTitle className="text-sm">Debug: Данные профиля</CardTitle>
             </CardHeader>
             <CardContent>
               <pre className="text-xs overflow-auto bg-white p-3 rounded">
