@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useAppSelector } from '@/store/hooks';
+import { useState, useEffect } from "react";
+import { useAppSelector } from "@/store/hooks";
 import {
   getUserProfile,
   saveUserProfile,
   updateProfileImage,
   type UserProfile,
-} from '@/services/profileService';
+} from "@/services/profileService";
 
 export const useProfile = () => {
   const user = useAppSelector((state) => state.auth.user);
@@ -25,21 +25,21 @@ export const useProfile = () => {
       try {
         setLoading(true);
         const userProfile = await getUserProfile(user.uid);
-        
+
         if (userProfile) {
           setProfile(userProfile);
         } else {
           // Если профиля нет, создаем базовый из данных Auth
           const defaultProfile: UserProfile = {
             uid: user.uid,
-            email: user.email || '',
-            fullName: user.displayName || 'No Name',
-            phone: user.phoneNumber || '',
-            city: '',
-            bio: '',
+            email: user.email || "",
+            fullName: user.displayName || "No Name",
+            phone: user.phoneNumber || "",
+            city: "",
+            bio: "",
             photoURL: user.photoURL || undefined,
             preferences: {
-              language: 'ru',
+              language: "ru",
               notifications: true,
               promos: true,
               darkMode: false,
@@ -48,7 +48,7 @@ export const useProfile = () => {
           setProfile(defaultProfile);
         }
       } catch (err: any) {
-        setError(err.message || 'Ошибка загрузки профиля');
+        setError(err.message || "Ошибка загрузки профиля");
       } finally {
         setLoading(false);
       }
@@ -60,7 +60,7 @@ export const useProfile = () => {
   // Сохранение профиля
   const updateProfile = async (data: Partial<UserProfile>) => {
     if (!user?.uid) {
-      throw new Error('Пользователь не авторизован');
+      throw new Error("Пользователь не авторизован");
     }
 
     try {
@@ -68,11 +68,11 @@ export const useProfile = () => {
       setError(null);
 
       await saveUserProfile(user.uid, data);
-      
+
       // Обновляем локальное состояние
       setProfile((prev) => (prev ? { ...prev, ...data } : null));
     } catch (err: any) {
-      setError(err.message || 'Ошибка сохранения профиля');
+      setError(err.message || "Ошибка сохранения профиля");
       throw err;
     } finally {
       setSaving(false);
@@ -82,7 +82,7 @@ export const useProfile = () => {
   // Загрузка фото профиля
   const uploadPhoto = async (file: File) => {
     if (!user?.uid) {
-      throw new Error('Пользователь не авторизован');
+      throw new Error("Пользователь не авторизован");
     }
 
     try {
@@ -100,7 +100,7 @@ export const useProfile = () => {
 
       return photoURL;
     } catch (err: any) {
-      setError(err.message || 'Ошибка загрузки фото');
+      setError(err.message || "Ошибка загрузки фото");
       throw err;
     } finally {
       setSaving(false);
@@ -116,5 +116,3 @@ export const useProfile = () => {
     uploadPhoto,
   };
 };
-
-
