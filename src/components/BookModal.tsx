@@ -43,6 +43,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [tableId, setTableId] = useState("");
 
   const availableTimes: string[] = [
     "12:00",
@@ -98,7 +99,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
         const cities = await cityService.getCities();
         setCities(cities);
         if (cities.length > 0) {
-          setSelectedCity(cities[0]);
+          setSelectedCity(cities[1]);
         }
       } catch (err) {
         console.error("Error fetching cities:", err);
@@ -244,9 +245,29 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
     return item[`${field}_ru`] || item[field] || "";
   };
 
+  const fetchTable = async (): Promise<string> => {
+    try {
+      // if (!selectedRestaurant?.id) {
+      //   throw new Error("Selected restaurant ID is undefined");
+      // }
+      const { data } = await bookingAPI.getTable(selectedRestaurant!.id);
+      const foundTable = data.sections?.[0]?.tables?.[0];
+      const foundTableId = foundTable?.uuid || foundTable?.id || "";
+      setTableId(foundTableId);
+      console.log("tableid", foundTableId);
+      return foundTableId;
+    } catch (err) {
+      console.log(err);
+      return "";
+    }
+  };
   const handleCreateReservation = async () => {
     try {
       setLoading(true);
+      const ensuredTableId = tableId || (await fetchTable());
+      if (!ensuredTableId) {
+        throw new Error("Table ID is missing");
+      }
 
       const formattedDate = selectedDate.toISOString().split("T")[0];
       const [hours, minutes] = selectedTime.split(":");
@@ -255,26 +276,61 @@ const BookingModal: React.FC<BookingModalProps> = ({ onClose }) => {
 
       const bookingData = {
         restaurant: selectedRestaurant!.id,
+        table: ensuredTableId,
         reservation_date: formattedDate,
         start_time: `${selectedTime}:00`,
         end_time: endTime,
         guest_count: guestCount,
+        guest_name: "Erkebulan",
+        guest_phone: "87006935072",
+        guest_email: "kalkadam123@gmail.com",
         menu_items: selectedDishes.map((dish) => ({
           menu_item: dish.id,
           quantity: 1,
         })),
       };
+      console.log("🔵 createBooking called");
+      const { data } = await bookingAPI.createBooking(bookingData);
+      console.log("Booking created:", data);
 
-      const response = await bookingAPI.createBooking(bookingData);
-      console.log("Booking created:", response.data);
-
-      alert("Бронирование успешно создано! ID: " + response.data.id);
-      onClose();
+      // alert("Бронирование успешно создано! ID: " + data.id);
+      const reservationId = data.id;
+      await redirectToCheckout(reservationId);
+      // onClose();
     } catch (err) {
       console.error("Error creating booking:", err);
       setError("Не удалось создать бронирование. Попробуйте снова.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const redirectToCheckout = async (reservationId: number) => {
+    try {
+      const reservationData = {
+        reservation_id: reservationId,
+      };
+      const { data } = await bookingAPI.redirectToStripe(reservationData);
+
+      const sessionId = data.session_id;
+
+      if (!sessionId) {
+        console.error("Session ID отсутствует:", data);
+        return;
+      }
+
+      console.log("Redirecting with Session ID:", sessionId);
+
+      // const result = await stripe.redirectToCheckout({
+      //   sessionId: sessionId,
+      // });
+      window.location.href = data.checkout_url;
+
+      // if (result.error) {
+      //   console.error("Stripe redirect error:", result.error.message);
+      // }
+    } catch (err) {
+      console.log("Error:", err);
     }
   };
 

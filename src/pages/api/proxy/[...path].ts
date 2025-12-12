@@ -9,9 +9,14 @@ export default async function handler(
 ) {
   try {
     const { path = [], ...queryParams } = req.query;
-    const targetUrl = `${BACKEND_URL}/${
+    let targetUrl = `${BACKEND_URL}/${
       Array.isArray(path) ? path.join("/") : path
     }`;
+
+    // Django expects trailing slashes when APPEND_SLASH is enabled
+    if (req.method && req.method !== "GET" && !targetUrl.endsWith("/")) {
+      targetUrl = `${targetUrl}/`;
+    }
 
     const response = await axios({
       method: req.method,

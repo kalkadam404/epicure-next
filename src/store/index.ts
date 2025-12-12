@@ -12,15 +12,9 @@ export const makeStore = () => {
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
-        serializableCheck: {
-          // Игнорируем проверку сериализуемости для Firebase User объекта
-          ignoredActions: [
-            "auth/signup/fulfilled",
-            "auth/login/fulfilled",
-            "auth/initialize/fulfilled",
-          ],
-          ignoredPaths: ["auth.user"],
-        },
+        // Firebase user объект содержит несериализуемые поля,
+        // отключаем проверку для корректной работы в Next окружении
+        serializableCheck: false,
       }),
   });
 };

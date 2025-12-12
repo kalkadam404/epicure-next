@@ -10,6 +10,22 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { initializeUserProfile } from "@/services/firestoreService";
 
+const AUTH_COOKIE_NAME = "authToken";
+
+const persistAuthCookie = (token: string | null | undefined) => {
+  if (typeof document === "undefined") return;
+  // Use Lax so redirects work while keeping the cookie reasonably scoped
+  const base = `${AUTH_COOKIE_NAME}=${token ?? ""}; path=/; samesite=lax;`;
+  const expiry = token ? "max-age=2592000" : "max-age=0";
+  // Secure is safe here because the app is expected to run on https in prod
+  document.cookie = `${base} ${expiry}; secure`;
+};
+
+const extractAccessToken = (user: User | null) => {
+  const tokenManager = (user as any)?.stsTokenManager;
+  return tokenManager?.accessToken as string | undefined;
+};
+
 interface AuthState {
   user: User | null;
   loading: boolean;
@@ -122,6 +138,7 @@ const authSlice = createSlice({
       })
       .addCase(signupThunk.fulfilled, (state, action) => {
         state.user = action.payload;
+        persistAuthCookie(extractAccessToken(action.payload));
         state.loading = false;
         state.error = null;
       })
@@ -138,6 +155,7 @@ const authSlice = createSlice({
       })
       .addCase(loginThunk.fulfilled, (state, action) => {
         state.user = action.payload;
+        persistAuthCookie(extractAccessToken(action.payload));
         state.loading = false;
         state.error = null;
       })
@@ -154,6 +172,7 @@ const authSlice = createSlice({
       })
       .addCase(logoutThunk.fulfilled, (state) => {
         state.user = null;
+        persistAuthCookie(null);
         state.loading = false;
         state.error = null;
       })
@@ -169,6 +188,7 @@ const authSlice = createSlice({
       })
       .addCase(initializeAuth.fulfilled, (state, action) => {
         state.user = action.payload;
+        persistAuthCookie(extractAccessToken(action.payload));
         state.loading = false;
         state.initialized = true;
       })
