@@ -1,6 +1,5 @@
 "use client";
-
-export const ssr = false;
+export const dynamic = "force-static";
 
 import { type ChangeEvent, useMemo, useRef, useState, useEffect } from "react";
 import {
